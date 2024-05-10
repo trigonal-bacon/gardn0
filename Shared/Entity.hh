@@ -12,39 +12,47 @@ enum Components {
     kCamera
 };
 
+typedef EntityId entid;
+typedef uint8_t uint8;
+typedef uint32_t uint32;
+typedef int32_t int32;
 #define PERFIELD \
 SINGLE(x, float, kPhysics, 1) \
 SINGLE(y, float, kPhysics, 2) \
 SINGLE(radius, float, kPhysics, 3) \
 SINGLE(angle, float, kPhysics, 4) \
-SINGLE(deletionTick, uint8_t, kPhysics, 5) \
-SINGLE(team, uint32_t, kRelations, 6) \
-SINGLE(parent, uint32_t, kRelations, 7) \
-SINGLE(cameraX, float, kCamera, 8) \
-SINGLE(cameraY, float, kCamera, 9) \
-SINGLE(FOV, float, kCamera, 10)
+SINGLE(deletion_tick, uint8, kPhysics, 5) \
+SINGLE(team, entid, kRelations, 6) \
+SINGLE(parent, entid, kRelations, 7) \
+SINGLE(camera_x, float, kCamera, 8) \
+SINGLE(camera_y, float, kCamera, 9) \
+SINGLE(fov, float, kCamera, 10)
 
-#ifdef SERVER
+#ifdef SERVER_SIDE
 #define PERSVFIELD \
+SINGLE(pending_delete, uint8_t, =0) \
 SINGLE(friction, float, =0) \
 SINGLE(mass, float, =1) \
 SINGLE(velocity, Vector, .set(0,0)) \
 SINGLE(acceleration, Vector, .set(0,0))
 #endif
+
+#define NULL_ENTITY (0)
 class Entity {
 public:
     Entity();
     void init();
     void reset();
+    void reset_protocol_state();
     uint32_t components;
-    uint32_t id;
+    EntityId id;
 #define SINGLE(name, type, component, num) type name;
 PERFIELD
 #undef SINGLE
 #define SINGLE(name, type, component, num) uint8_t state_##name;
 PERFIELD
 #undef SINGLE
-#ifdef SERVER
+#ifdef SERVER_SIDE
 #define SINGLE(name, type, reset) type name;
 PERSVFIELD
 #undef SINGLE

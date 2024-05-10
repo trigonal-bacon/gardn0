@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include <assert.h>
 
 #ifdef CLIENT
@@ -8,8 +9,38 @@
 #define CLIENT_ONLY(...)
 #endif
 
-#ifdef SERVER
+#ifdef SERVER_SIDE
 #define SERVER_ONLY(...) __VA_ARGS__
 #else
 #define SERVER_ONLY(...)
 #endif
+
+class EntityId {
+public:
+    uint16_t id = 0;
+    uint16_t hash = 0;
+    EntityId();
+    EntityId(uint16_t, uint16_t);
+    uint8_t null();
+    void operator=(EntityId);
+    uint8_t operator==(EntityId);
+    void operator=(uint32_t);
+};
+
+constexpr uint32_t bit_count(uint32_t v) {return 32 - __builtin_clz(v - 1); };
+constexpr uint32_t bit_fill(uint32_t v) { return (1 << v) - 1; }; 
+
+template<typename T, uint32_t capacity>
+class StaticArray {
+public:
+    T values[capacity];
+    uint32_t length;
+    StaticArray() : length(0) {};
+    T operator[](uint32_t at) { return values[at]; };
+    void push(T val) { values[length++] = val; };
+    void clear() { length = 0;}
+    int32_t index_of(T val) {
+        for (uint32_t i = 0; i < length; ++i) if (values[i] == val) return i;
+        return -1;
+    };
+};

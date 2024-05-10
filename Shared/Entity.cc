@@ -10,18 +10,22 @@ void Entity::init() {
     #undef SINGLE
 }
 
-void Entity::reset() {
+void Entity::reset_protocol_state() {
     #define SINGLE(name, type, component, num) state_##name = 0;
     PERFIELD
     #undef SINGLE
-#ifdef SERVER
+}
+
+void Entity::reset() {
+    reset_protocol_state();
+#ifdef SERVER_SIDE
     #define SINGLE(name, type, reset) name reset;
     PERSVFIELD
     #undef SINGLE
 #endif
 }
 
-#ifdef SERVER
+#ifdef SERVER_SIDE
 void Entity::add_component(uint32_t comp) {
     assert(!has_component(comp));
     components |= 1 << comp;
@@ -34,10 +38,10 @@ PERFIELD
 #undef SINGLE
 #endif
 void Entity::write(Writer *writer, uint8_t create) {
-    writer->write_uint32_t(components);
-#define SINGLE(name, type, component, num) if(has_component(component) && (create || state_##name)) writer->write_uint8_t(num); writer->write_##type(name);
+    writer->write_uint32(components);
+#define SINGLE(name, type, component, num) if(has_component(component) && (create || state_##name)) writer->write_uint8(num); writer->write_##type(name);
 PERFIELD
 #undef SINGLE
-    writer->write_uint8_t(0);
+    writer->write_uint8(0);
 }
 #undef SINGLE
