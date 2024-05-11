@@ -6,9 +6,8 @@
 #include <thread>
 #include <stdio.h>
 
-static Server *_server = nullptr;
-Server::Server() : simulation() { _server = this; }
-
+Server _server;
+Server::Server() : simulation() { }
 
 void Server::run() {
 
@@ -31,20 +30,26 @@ void Server::run() {
         /* Handlers */
         .upgrade = nullptr,
         .open = [](auto *ws) {
-			std::cout << "Connection\n";
-            //ws->getUserData();
+			std::cout << "client connection\n";
+            Client *client = ws->getUserData();
+            client->ws = ws;
+            _server.sockets.insert(client);
         },
         .message = [](auto *ws, std::string_view message, uWS::OpCode opCode) {
-            ws->send(message, opCode, 0);
+			//std::cout << "client message recv\n";
+            //ws->send(message, opCode, 0);
         },
-        .dropped = [](auto */*ws*/, std::string_view /*message*/, uWS::OpCode /*opCode*/) {
+        .dropped = [](auto *ws, std::string_view /*message*/, uWS::OpCode /*opCode*/) {
+            ws->end();
             /* A message was dropped due to set maxBackpressure and closeOnBackpressureLimit limit */
         },
         .drain = [](auto */*ws*/) {
             /* Check ws->getBufferedAmount() here */
         },
-        .close = [](auto */*ws*/, int /*code*/, std::string_view /*message*/) {
+        .close = [](auto *ws, int /*code*/, std::string_view /*message*/) {
             /* You may access ws->getUserData() here */
+            Client *client = ws->getUserData();
+            _server.sockets.erase(client);
         }
     }).listen(9001, [](auto *listen_socket) {
         if (listen_socket) {
@@ -55,14 +60,18 @@ void Server::run() {
     struct us_loop_t *loop = (struct us_loop_t *) uWS::Loop::get();
     struct us_timer_t *delayTimer = us_create_timer(loop, 0, 0);
 
-    // broadcast the unix time as millis every 8 millis
+
     us_timer_set(delayTimer, [](struct us_timer_t */*t*/) {
 
         struct timespec ts;
+        struct timespec te;
         timespec_get(&ts, TIME_UTC);
-        _server->simulation.tick();
+        _server.simulation.tick();
+        timespec_get(&te, TIME_UTC);
 
-        int64_t millis = ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+        double mss = ts.tv_sec * 1000 + ts.tv_nsec / 1000000.0;
+        double mse = te.tv_sec * 1000 + te.tv_nsec / 1000000.0;
+        //std::cout << "tick took " << (mse - mss) << "ms\n";
 
         //std::cout << "Broadcasting timestamp: " << millis << std::endl;
 

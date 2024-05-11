@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <assert.h>
 
-#ifdef CLIENT
+#ifdef CLIENT_SIDE
 #define CLIENT_ONLY(...) __VA_ARGS__
 #else
 #define CLIENT_ONLY(...)
@@ -13,6 +13,12 @@
 #define SERVER_ONLY(...) __VA_ARGS__
 #else
 #define SERVER_ONLY(...)
+#endif
+
+#ifdef DEBUG
+#define DEBUG_ONLY(...) __VA_ARGS__
+#else
+#define DEBUG_ONLY(...)
 #endif
 
 class EntityId {
@@ -29,6 +35,10 @@ public:
 
 constexpr uint32_t bit_count(uint32_t v) {return 32 - __builtin_clz(v - 1); };
 constexpr uint32_t bit_fill(uint32_t v) { return (1 << v) - 1; }; 
+constexpr uint32_t div_round_up(uint32_t a, uint32_t b) { return (a + b - 1) / b; }
+double frand();
+float fclamp(float, float, float); 
+float lerp(float, float, float);
 
 template<typename T, uint32_t capacity>
 class StaticArray {
@@ -37,7 +47,7 @@ public:
     uint32_t length;
     StaticArray() : length(0) {};
     T operator[](uint32_t at) { return values[at]; };
-    void push(T val) { values[length++] = val; };
+    void push(T val) { DEBUG_ONLY(assert(length < capacity); ) values[length++] = val; };
     void clear() { length = 0;}
     int32_t index_of(T val) {
         for (uint32_t i = 0; i < length; ++i) if (values[i] == val) return i;

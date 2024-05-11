@@ -4,8 +4,7 @@
 #include <Server/Server.hh>
 
 int main() {
-    Server server;
-    server.run();
+    _server.run();
 
     return 0;
 }

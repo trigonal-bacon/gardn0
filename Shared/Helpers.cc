@@ -1,5 +1,20 @@
 #include <Shared/Helpers.hh>
 
+#include <random>
+
+float fclamp(float v, float s, float e) {
+    return v < s ? s : v > e ? e : v;
+}
+
+float lerp(float v, float e, float a) {
+    a = fclamp(a, 0, 1);
+    return v * (1 - a) + e * a;
+}
+
+double frand() {
+    return std::rand() / (double) RAND_MAX;
+}
+
 EntityId::EntityId() {
 }
 

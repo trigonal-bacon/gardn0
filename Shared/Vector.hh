@@ -5,5 +5,13 @@ public:
     float x;
     float y;
     Vector();
+    Vector(Vector &);
+    Vector &operator=(Vector &);
+    Vector &operator+=(Vector &);
+    Vector &operator*=(float);
     void set(float, float);
+    float magnitude();
+    float angle();
+    Vector &normalize();
+    Vector &set_magnitude(float);
 };

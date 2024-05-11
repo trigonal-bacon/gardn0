@@ -1,8 +1,6 @@
 #include <Shared/Binary.hh>
 
-Writer::Writer(uint8_t *buf) {
-    at = packet = buf;
-}
+Writer::Writer(uint8_t *buf) : at(buf), packet(buf) {}
 
 void Writer::write_uint8(uint8_t v) {
     *at = v;
@@ -33,3 +31,5 @@ void Writer::write_entid(EntityId &id) {
     write_uint32(id.hash);
     if (id.hash) write_uint32(id.id);
 }
+
+Reader::Reader(uint8_t *buf) : at(buf), packet(buf) {}
