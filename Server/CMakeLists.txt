@@ -6,6 +6,7 @@ include_directories(..)
 set(SOURCES
     Process/Collision.cc
     Process/Motion.cc
+    Process/PetalBehavior.cc
     Client.cc
     Main.cc
     Simulation.cc
@@ -15,6 +16,7 @@ set(SOURCES
     ../Shared/Entity.cc
     ../Shared/Helpers.cc
     ../Shared/Simulation.cc
+    ../Shared/StaticData.cc
     ../Shared/Vector.cc
 )
 

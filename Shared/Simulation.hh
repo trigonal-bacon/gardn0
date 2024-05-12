@@ -13,7 +13,6 @@ class Client;
 static const uint32_t ENTITY_CAP = 1024;
 
 class Simulation {
-    void delete_ent(EntityId &);
 public:
 SERVER_ONLY(SpatialHash spatial_hash;)
     uint8_t entity_tracker[ENTITY_CAP] = {0};
@@ -28,6 +27,7 @@ SERVER_ONLY(SpatialHash spatial_hash;)
     uint8_t ent_exists(EntityId &);
     uint8_t ent_alive(EntityId &);
     void request_delete(EntityId &);
+    void delete_ent(EntityId &); //DANGEROUS
     void pre_tick();
     void tick();
     void post_tick();

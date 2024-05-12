@@ -4,11 +4,11 @@
 
 #include <stdint.h>
 
-enum Clientbound {
+enum kClientbound {
     kClientUpdate
 };
 
-enum Serverbound {
+enum kServerbound {
     kClientInput,
     kClientSpawn
 };

@@ -46,20 +46,23 @@ void Server::run() {
             Reader reader(data);
             Client *client = ws->getUserData();
             switch(reader.read_uint8()) {
-                case Serverbound::kClientInput: {
+                case kServerbound::kClientInput: {
                     if (!client->alive()) break;
                     Entity &camera = global_server.simulation.get_ent(client->camera);
                     Entity &player = global_server.simulation.get_ent(camera.player);
                     float x = reader.read_float();
                     float y = reader.read_float();
-                    if (x == 0 && y == 0) { player.acceleration.set(0,0); return; }
-                    if (fabsf(x) > 5e3 || fabsf(y) > 5e3) break;
-                    Vector accel(x,y);
-                    accel.normalize().set_magnitude(PLAYER_ACCELERATION * SERVER_DT);
-                    player.acceleration = accel;
+                    if (x == 0 && y == 0) player.acceleration.set(0,0);
+                    else {
+                        if (fabsf(x) > 5e3 || fabsf(y) > 5e3) break;
+                        Vector accel(x,y);
+                        accel.normalize().set_magnitude(PLAYER_ACCELERATION * SERVER_DT);
+                        player.acceleration = accel;
+                    }
+                    player.input = reader.read_uint8() & 3;
                     break;
                 }
-                case Serverbound::kClientSpawn: {
+                case kServerbound::kClientSpawn: {
                     std::cout << "client spawn\n";
                     if (client->alive()) break;
                     Entity &camera = global_server.simulation.get_ent(client->camera);
@@ -71,6 +74,15 @@ void Server::run() {
                     player.friction = 0.75;
                     player.add_component(kFlower);
                     camera.set_player(player.id);
+                    camera.set_loadout_count(5);
+                    player.add_component(kRelations);
+                    player.set_parent(client->camera);
+                    player.set_team(client->camera);
+                    player.add_component(kHealth);
+                    player.set_health(100);
+                    player.set_max_health(100);
+                    player.damage = 25;
+                    //for (uint32_t i = 0; i < 5; ++i) camera.loadout[i].reset();
                     break;
                 }
                 default:
@@ -86,6 +98,7 @@ void Server::run() {
             /* A message was dropped due to set maxBackpressure and closeOnBackpressureLimit limit */
         },
         .drain = [](auto */*ws*/) {
+            assert(!1);
             /* Check ws->getBufferedAmount() here */
         },
         .close = [](auto *ws, int /*code*/, std::string_view /*message*/) {

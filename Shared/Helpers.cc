@@ -38,7 +38,7 @@ void EntityId::operator=(uint32_t v) {
 }
 
 bool operator<(const EntityId &a, const EntityId &b) {
-    return a.id < b.id;
+    return (a.hash * 65536 + a.id) < (b.hash * 65536 + b.id);
 }
 
 bool operator==(const EntityId &a, const EntityId &b) {

@@ -3,6 +3,10 @@
 #include <stdint.h>
 #include <assert.h>
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
 #ifdef CLIENT_SIDE
 #define CLIENT_ONLY(...) __VA_ARGS__
 #else

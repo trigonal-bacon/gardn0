@@ -24,6 +24,8 @@ public:
     void set_fill(uint32_t);
     void set_stroke(uint32_t);
     
+    void round_line_join();
+    void round_line_cap();
     void set_line_width(float);
     void set_text_size(float);
     void set_global_alpha(float);

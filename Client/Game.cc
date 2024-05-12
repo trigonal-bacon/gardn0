@@ -28,7 +28,6 @@ void Game::tick(double time) {
     
     if (socket.ready) send_inputs();
     
-    simulation.post_tick();
     input.keys_pressed_this_tick.clear();
     input.mouse_buttons_pressed = input.mouse_buttons_released = 0;
     last_tick = curr_tick;
@@ -48,9 +47,45 @@ void Game::render_game() {
     renderer.fill_rect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
     for (uint32_t i = 0; i < simulation.active_entities.length; ++i) {
         Entity &ent = simulation.get_ent(simulation.active_entities[i]);
+        if (ent.has_component(kHealth)) {
+            RenderContext context(&renderer);
+            renderer.translate(ent.lerp_x, ent.lerp_y);
+            render_health(ent, renderer);
+        }
+    }
+    for (uint32_t i = 0; i < simulation.active_entities.length; ++i) {
+        Entity &ent = simulation.get_ent(simulation.active_entities[i]);
+        if (ent.has_component(kDrop)) {
+            RenderContext context(&renderer);
+            renderer.translate(ent.lerp_x, ent.lerp_y);
+            renderer.rotate(ent.lerp_angle);
+            render_drop(ent, renderer);
+        }
+    }
+    for (uint32_t i = 0; i < simulation.active_entities.length; ++i) {
+        Entity &ent = simulation.get_ent(simulation.active_entities[i]);
+        if (ent.has_component(kPetal)) {
+            RenderContext context(&renderer);
+            renderer.translate(ent.lerp_x, ent.lerp_y);
+            renderer.rotate(ent.lerp_angle);
+            render_petal(ent, renderer);
+        }
+    }
+    for (uint32_t i = 0; i < simulation.active_entities.length; ++i) {
+        Entity &ent = simulation.get_ent(simulation.active_entities[i]);
+        if (ent.has_component(kMob)) {
+            RenderContext context(&renderer);
+            renderer.translate(ent.lerp_x, ent.lerp_y);
+            renderer.rotate(ent.lerp_angle);
+            render_mob(ent, renderer);
+        }
+    }
+    for (uint32_t i = 0; i < simulation.active_entities.length; ++i) {
+        Entity &ent = simulation.get_ent(simulation.active_entities[i]);
         if (ent.has_component(kFlower)) {
             RenderContext context(&renderer);
             renderer.translate(ent.lerp_x, ent.lerp_y);
+            renderer.rotate(ent.lerp_angle);
             render_flower(ent, renderer);
         }
     }
@@ -64,17 +99,22 @@ void Game::send_inputs() {
     uint8_t packet[1024];
     Writer writer(static_cast<uint8_t *>(packet));
     if (alive()) {
-        writer.write_uint8(Serverbound::kClientInput);
-        float x = input.keys_pressed.contains('D') - input.keys_pressed.contains('A');
-        float y = input.keys_pressed.contains('S') - input.keys_pressed.contains('W');
+        writer.write_uint8(kServerbound::kClientInput);
+        //float x = input.keys_pressed.contains('D') - input.keys_pressed.contains('A');
+        //float y = input.keys_pressed.contains('S') - input.keys_pressed.contains('W');
+        float x = input.mouse_x - renderer.width / 2;
+        float y = input.mouse_y - renderer.height / 2;
         writer.write_float(x);
         writer.write_float(y);
+        uint8_t attack = input.keys_pressed.contains('\x20') || input.mouse_buttons_state & 1;
+        uint8_t defend = input.keys_pressed.contains('\x10') || input.mouse_buttons_state & 2;
+        writer.write_uint8(attack | (defend << 1));
         socket.send(writer.packet, writer.at - writer.packet);
     }
     else {
         if (input.keys_pressed_this_tick.contains('Q')) {
             //SPAWN
-            writer.write_uint8(Serverbound::kClientSpawn);
+            writer.write_uint8(kServerbound::kClientSpawn);
             socket.send(writer.packet, writer.at - writer.packet);
         }
     }
@@ -83,7 +123,7 @@ void Game::send_inputs() {
 void Game::on_message(uint8_t *ptr, uint32_t len) {
     Reader reader(ptr);
     switch(reader.read_uint8()) {
-        case Clientbound::kClientUpdate: {
+        case kClientbound::kClientUpdate: {
             simulation_ready = 1;
             camera_id = reader.read_entid();
             EntityId curr_id = reader.read_entid();
@@ -91,7 +131,7 @@ void Game::on_message(uint8_t *ptr, uint32_t len) {
                 if (curr_id.null()) break;
                 assert(simulation.ent_exists(curr_id));
                 Entity &ent = simulation.get_ent(curr_id);
-                simulation.request_delete(curr_id);
+                simulation.delete_ent(curr_id);
                 curr_id = reader.read_entid();
             }
             curr_id = reader.read_entid();
@@ -105,7 +145,7 @@ void Game::on_message(uint8_t *ptr, uint32_t len) {
                 ent.read(&reader);
                 curr_id = reader.read_entid();
             }
-            //std::cout << '\n';
+            //simulation.post_tick();
             break;
         }
         default:

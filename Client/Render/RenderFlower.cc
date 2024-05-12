@@ -5,6 +5,8 @@
 #include <Shared/Entity.hh>
 
 void render_flower(Entity &ent, Renderer &ctx) {
+    ctx.set_global_alpha(1 - ent.lerp_deletion_tick * 0.2);
+    ctx.scale(1 + 0.1 * ent.lerp_deletion_tick);
     ctx.set_stroke(0xffcfbb50);
     ctx.set_fill(0xffffe763);
     ctx.set_line_width(3);

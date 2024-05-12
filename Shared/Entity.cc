@@ -1,8 +1,22 @@
 #include <Shared/Entity.hh>
 
+#include <Shared/StaticData.hh>
+
 #include <iostream>
 
 EntityId NULL_ENTITY(0, 0);
+
+LoadoutSlot::LoadoutSlot() {
+    reset();
+}
+
+void LoadoutSlot::reset() {
+    id = 1 + frand() * (kPetalId::kNumPetals - 1);
+    for (uint32_t i = 0; i < 3; ++i) {
+        petals[i].reload = 0;
+        petals[i].ent_id = NULL_ENTITY;
+    }
+}
 
 Entity::Entity() {
     init();
@@ -10,18 +24,25 @@ Entity::Entity() {
 
 void Entity::init() {
     components = 0;
-    #define SINGLE(name, type, num) name = 0; state_##name = 0;
+    #define _SINGLE(name, type, num) name = 0;
+    #define _MULTIPLE(name, type, amt, num) for (uint32_t n = 0; n < amt; ++n) { name[n] = 0; }
     PERFIELD
-    #undef SINGLE
-    #define SINGLE(name, type, reset) name reset;
+    #undef _SINGLE
+    #undef _MULTIPLE
+    #define _SINGLE(name, type, reset) name reset;
+    #define _MULTIPLE(name, type, amt, reset) for (uint32_t i = 0; i < amt; ++i) { name[i] reset; }
     PER_EXTRA_FIELD
-    #undef SINGLE
+    #undef _SINGLE
+    #undef _MULTIPLE
+    reset_protocol_state();
 }
 
 void Entity::reset_protocol_state() {
-    #define SINGLE(name, type, num) state_##name = 0;
+    #define _SINGLE(name, type, num) state_##name = 0;
+    #define _MULTIPLE(name, type, amt, num) state_##name = 0; for (uint32_t n = 0; n < amt; ++n) { state_per_##name[n] = 0; }
     PERFIELD
-    #undef SINGLE
+    #undef _SINGLE
+    #undef _MULTIPLE
 }
 
 void Entity::add_component(uint32_t comp) {
@@ -33,27 +54,46 @@ uint8_t Entity::has_component(uint32_t comp) {
 }
 
 #ifdef SERVER_SIDE
-#define SINGLE(name, type, num) void Entity::set_##name(type v) { name = v; state_##name = 1; }
+#define _SINGLE(name, type, num) void Entity::set_##name(type v) { if (name == v) return; name = v; state_##name = 1; }
+#define _MULTIPLE(name, type, amt, num) void Entity::set_##name(type v, uint32_t i) { if (name[i] == v) return; name[i] = v; state_##name = 1; state_per_##name[i] = 1; }
 PERFIELD
-#undef SINGLE
+#undef _SINGLE
+#undef _MULTIPLE
 void Entity::write(Writer *writer, uint8_t create) {
     writer->write_uint32(components);
-#define SINGLE(name, type, num) if(create || state_##name) { writer->write_uint8(num); writer->write_##type(name); }
+#define _SINGLE(name, type, num) if(create || state_##name) { writer->write_uint8(num); writer->write_##type(name); }
+#define _MULTIPLE(name, type, amt, num) if(create || state_##name) { \
+    writer->write_uint8(num); \
+    for (uint32_t n = 0; n < amt; ++n) { \
+        if (create || state_per_##name[n]) { writer->write_uint8(n); writer->write_##type(name[n]); } \
+        } \
+    } \
+    writer->write_uint8(255);
 #define COMPONENT(name) if (has_component(k##name)) { FIELDS_##name }
 PERCOMPONENT
-#undef SINGLE
+#undef _SINGLE
+#undef _MULTIPLE
     writer->write_uint8(0);
 }
-#undef SINGLE
 #else
+
 void Entity::read(Reader *reader) {
     components = reader->read_uint32();
     while(1) {
         switch(reader->read_uint8()) {
             case 0: { return; }
-    #define SINGLE(name, type, num) case num: { name = reader->read_##type(); state_##name = 1; break; }
+    #define _SINGLE(name, type, num) case num: { name = reader->read_##type(); state_##name = 1; break; }
+    #define _MULTIPLE(name, type, amt, num) case num: { \
+        while(1) { \
+            uint8_t index = reader->read_uint8(); \
+            if (index == 255) break; \
+            name[index] = reader->read_##type(); \
+        } \
+        break; \
+    }
     PERFIELD
-    #undef SINGLE        
+    #undef _SINGLE  
+    #undef _MULTIPLE      
         }
     }
 }

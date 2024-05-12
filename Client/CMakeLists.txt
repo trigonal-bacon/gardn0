@@ -7,7 +7,11 @@ include_directories(..)
 
 set(SRCS
     Render/Renderer.cc
+    Render/RenderDrop.cc
     Render/RenderFlower.cc
+    Render/RenderHealth.cc
+    Render/RenderMob.cc
+    Render/RenderPetal.cc
     Game.cc
     Input.cc
     Main.cc
@@ -17,6 +21,7 @@ set(SRCS
     ../Shared/Entity.cc
     ../Shared/Helpers.cc
     ../Shared/Simulation.cc
+    ../Shared/StaticData.cc
     ../Shared/Vector.cc
 )
 

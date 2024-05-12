@@ -8,12 +8,22 @@
 #include <set>
 
 void Simulation::tick() {
-    if (frand() < 0.00) {
-        Entity &ent = alloc_ent();
-        ent.add_component(kPhysics);
-        ent.set_radius(frand() * 5 + 5);
-        ent.set_x(frand() * ARENA_WIDTH);
-        ent.set_y(frand() * ARENA_HEIGHT);
+    if (frand() < 0.1) {
+        Entity &mob = alloc_ent();
+        uint8_t mob_id = kBabyAnt;
+        mob.add_component(kPhysics);
+        mob.set_x(frand() * ARENA_WIDTH);
+        mob.set_y(frand() * ARENA_HEIGHT);
+        mob.set_angle(frand() * 2 * M_PI);
+        mob.set_radius(MOB_DATA[mob_id].radius);
+        mob.add_component(kRelations);
+        mob.set_team(NULL_ENTITY);
+        mob.add_component(kHealth);
+        mob.set_max_health(MOB_DATA[mob_id].health);
+        mob.set_health(MOB_DATA[mob_id].health);
+        mob.damage = MOB_DATA[mob_id].damage;
+        mob.add_component(kMob);
+        mob.set_mob_id(mob_id);
     }
     pre_tick();
     for (uint32_t i = 0; i < active_entities.length; ++i) {
@@ -21,11 +31,44 @@ void Simulation::tick() {
         if (ent.has_component(kPhysics)) spatial_hash.insert(ent);
     }
     spatial_hash.collide();
+    tick_petal_behavior(this);
     for (uint32_t i = 0; i < active_entities.length; ++i) {
         Entity &ent = get_ent(active_entities[i]);
         if (ent.has_component(kPhysics)) tick_entity_motion(this, ent);
     }
     post_tick();
+}
+
+static void _ent_on_delete(Simulation *simulation, Entity &ent) {
+    if (ent.team == NULL_ENTITY && ent.has_component(kMob)) {
+        //spawn DROPS
+        uint32_t count = 0;
+        uint8_t drops[4];
+        struct MobData &data = MOB_DATA[ent.mob_id];
+        for (uint32_t i = 0; i < 4; ++i) {
+            if (data.drops[i].id == 0) break;
+            if (frand() < data.drops[i].chance) drops[count++] = data.drops[i].id;
+        }
+        if (count == 0) return;
+        for (uint32_t i = 0; i < count; ++i) {
+            Entity &drop = simulation->alloc_ent();
+            drop.add_component(kPhysics);
+            drop.set_x(ent.x);
+            drop.set_y(ent.y);
+            drop.set_radius(25);
+            drop.set_angle(0);
+            drop.friction = 0.2;
+            drop.add_component(kRelations);
+            drop.set_team(NULL_ENTITY);
+            drop.add_component(kDrop);
+            drop.set_drop_id(drops[i]);
+            if (count > 1) {
+                Vector v;
+                v.unit_normal(2 * M_PI * i / count).set_magnitude(10);
+                drop.velocity = v;
+            }
+        }
+    }
 }
 
 void Simulation::post_tick() {
@@ -35,6 +78,7 @@ void Simulation::post_tick() {
         assert(ent_exists(active_entities[i]));
         Entity &ent = get_ent(active_entities[i]);
         if (ent.pending_delete && ent.has_component(kPhysics)) {
+            if (ent.deletion_tick == 0) _ent_on_delete(this, ent);
             ent.set_deletion_tick(ent.deletion_tick + 1);
             if (pending_delete.index_of(ent.id) == -1) pending_delete.push(ent.id);
         }
@@ -60,7 +104,7 @@ void Simulation::post_tick() {
 
 void Simulation::update_client(Client *client) {
     if (!ent_exists(client->camera)) return;
-    std::set<EntityId, std::less<>> in_view;
+    std::set<EntityId> in_view;
     in_view.insert(client->camera);
     Entity &camera = get_ent(client->camera);
     if (ent_exists(camera.player)) {
@@ -70,7 +114,7 @@ void Simulation::update_client(Client *client) {
         in_view.insert(player.id);
     }
     Writer writer(OUTGOING_PACKET);
-    writer.write_uint8(Clientbound::kClientUpdate);
+    writer.write_uint8(kClientbound::kClientUpdate);
     writer.write_entid(client->camera);
     spatial_hash.query(camera.camera_x, camera.camera_y, 960 / camera.fov, 540 / camera.fov, [&](Simulation *sim, Entity &ent){
         in_view.insert(ent.id);

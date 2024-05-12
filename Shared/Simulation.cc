@@ -24,6 +24,7 @@ Entity &Simulation::get_ent(EntityId &id) {
 
 void Simulation::force_alloc_ent(EntityId &id) {
     assert(id.id < ENTITY_CAP);
+    DEBUG_ONLY(std::cout << "ent_create <" << id.hash << ',' << id.id << ">\n";)
     assert(!entity_tracker[id.id]);
     entities[id.id].init();
     entity_tracker[id.id] = 1;

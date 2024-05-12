@@ -78,6 +78,18 @@ void Renderer::set_global_alpha(float v) {
     }, id, v);
 }
 
+void Renderer::round_line_cap() {
+    EM_ASM({
+    Module.ctxs[$0].lineCap = "round";
+    }, id);
+}
+
+void Renderer::round_line_join() {
+    EM_ASM({
+    Module.ctxs[$0].lineJoin = "round";
+    }, id);
+}
+
 static void update_transform(Renderer *r) {
 EM_ASM({
     Module.ctxs[$0].setTransform($1, $2, $4, $5, $3, $6);
@@ -155,14 +167,14 @@ EM_ASM({
 
 void Renderer::qcurve_to(float x, float y, float x1, float y1) {
 EM_ASM({
-    Module.ctxs[$0].quadraticCurveTo($3, $4, $1, $2);
+    Module.ctxs[$0].quadraticCurveTo($1, $2, $3, $4);
 }, id, x, y, x1, y1);
 }
 
 void Renderer::bcurve_to(float x, float y, float x1, float y1, float x2, float y2) {
 EM_ASM({
-    Module.ctxs[$0].bezierCurveTo($3, $4, $5, $6, $1, $2);
-}, id, x, y, x1, y1);
+    Module.ctxs[$0].bezierCurveTo($1, $2, $3, $4, $5, $6);
+}, id, x, y, x1, y1, x2, y2);
 }
 
 

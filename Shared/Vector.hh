@@ -15,4 +15,5 @@ public:
     float angle();
     Vector &normalize();
     Vector &set_magnitude(float);
+    Vector &unit_normal(float);
 };

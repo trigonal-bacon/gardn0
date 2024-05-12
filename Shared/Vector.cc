@@ -54,3 +54,9 @@ Vector &Vector::set_magnitude(float v) {
     y *= v;
     return *this;
 }
+
+Vector &Vector::unit_normal(float a) {
+    x = cosf(a);
+    y = sinf(a);
+    return *this;
+}
