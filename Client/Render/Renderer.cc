@@ -112,8 +112,8 @@ void Renderer::scale(float x, float y) {
 }
 
 void Renderer::translate(float x, float y) {
-    context.transform_matrix[2] += x;
-    context.transform_matrix[5] += y;
+    context.transform_matrix[2] += x * context.transform_matrix[0];
+    context.transform_matrix[5] += y * context.transform_matrix[4];
     update_transform(this);
 }
 
@@ -178,8 +178,26 @@ void Renderer::arc(float x, float y, float r) {
 
 void Renderer::ellipse(float x, float y, float r1, float r2) {
 EM_ASM({
-    Module.ctxs[$0].ellipse($1, $2, $3, $4, 0, 2 * M_PI, 0);
+    Module.ctxs[$0].ellipse($1, $2, $3, $4, 0, 2 * Math.PI, 0);
 }, id, x, y, r1, r2);
+}
+
+void Renderer::fill_rect(float x, float y, float w, float h) {
+EM_ASM({
+    Module.ctxs[$0].fillRect($1, $2, $3, $4);
+}, id, x, y, w, h);
+}
+
+void Renderer::stroke_rect(float x, float y, float w, float h) {
+EM_ASM({
+    Module.ctxs[$0].strokeRect($1, $2, $3, $4);
+}, id, x, y, w, h);
+}
+
+void Renderer::rect(float x, float y, float w, float h) {
+EM_ASM({
+    Module.ctxs[$0].rect($1, $2, $3, $4);
+}, id, x, y, w, h);
 }
 
 void Renderer::fill() {
@@ -191,5 +209,11 @@ EM_ASM({
 void Renderer::stroke() {
 EM_ASM({
     Module.ctxs[$0].stroke();
+}, id);
+}
+
+void Renderer::clip() {
+EM_ASM({
+    Module.ctxs[$0].clip();
 }, id);
 }

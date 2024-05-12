@@ -28,8 +28,40 @@ void Writer::write_float(float v) {
 }
 
 void Writer::write_entid(EntityId &id) {
-    write_uint32(id.hash);
-    if (id.hash) write_uint32(id.id);
+    write_uint32(id.id);
+    if (id.id) write_uint32(id.hash);
 }
 
-Reader::Reader(uint8_t *buf) : at(buf), packet(buf) {}
+Reader::Reader(uint8_t const *buf) : at(buf), packet(buf) {}
+
+uint8_t Reader::read_uint8() {
+    return *at++;
+}
+
+uint32_t Reader::read_uint32() {
+    uint32_t ret = 0;
+    for (uint32_t i = 0; i < 5; ++i) {
+        uint8_t o = read_uint8();
+        ret |= ((o & 127) << (i * 7));
+        if (o <= 127) break;
+    }
+    return ret;
+}
+
+int32_t Reader::read_int32() {
+    uint32_t r = read_uint32();
+    uint32_t s = r & 1;
+    int32_t ret = r >> 1;
+    if (s) ret *= -1;
+    return ret;
+}
+
+float Reader::read_float() {
+    return read_int32() / 1024.0;
+}
+
+EntityId Reader::read_entid() {
+    uint16_t id = read_uint32();
+    uint16_t hash = id ? read_uint32() : 0;
+    return {id, hash};
+}

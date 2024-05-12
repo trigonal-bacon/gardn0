@@ -6,12 +6,14 @@
 
 #ifdef SERVER_SIDE
 #include <Server/SpatialHash.hh>
+
+class Client;
 #endif
 
 static const uint32_t ENTITY_CAP = 1024;
 
 class Simulation {
-    void delete_ent(EntityId);
+    void delete_ent(EntityId &);
 public:
 SERVER_ONLY(SpatialHash spatial_hash;)
     uint8_t entity_tracker[ENTITY_CAP] = {0};
@@ -21,14 +23,17 @@ SERVER_ONLY(SpatialHash spatial_hash;)
     StaticArray<EntityId, ENTITY_CAP> pending_delete;
     Simulation();
     Entity &alloc_ent();
-    Entity &get_ent(EntityId);
-    void force_alloc_ent(EntityId);
-    uint8_t ent_exists(EntityId);
-    uint8_t ent_alive(EntityId);
-    void request_delete(EntityId);
+    Entity &get_ent(EntityId &);
+    void force_alloc_ent(EntityId &);
+    uint8_t ent_exists(EntityId &);
+    uint8_t ent_alive(EntityId &);
+    void request_delete(EntityId &);
     void pre_tick();
     void tick();
-#ifdef SERVER_SIDE
     void post_tick();
+#ifdef SERVER_SIDE
+    void update_client(Client *);
+#else
+    void tick_lerp(double);
 #endif
 };

@@ -50,6 +50,7 @@ public:
 
     void fill();
     void stroke();
+    void clip();
 
     //text ops
 };

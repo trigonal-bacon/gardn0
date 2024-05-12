@@ -3,7 +3,9 @@
 #include <random>
 
 float fclamp(float v, float s, float e) {
-    return v < s ? s : v > e ? e : v;
+    if (!(v >= s)) return s;
+    if (!(v <= e)) return e;
+    return v;
 }
 
 float lerp(float v, float e, float a) {
@@ -21,18 +23,24 @@ EntityId::EntityId() {
 EntityId::EntityId(uint16_t id, uint16_t hash) : id(id), hash(hash) {
 }
 
-uint8_t EntityId::null() {
+bool EntityId::null() {
     return id == 0;
 }
 
-void EntityId::operator=(EntityId o) {
+void EntityId::operator=(const EntityId &o) {
     id = o.id;
     hash = o.hash;
 }
 
-uint8_t EntityId::operator==(EntityId o) {
-    return id == o.id && hash == o.hash;
-}
+
 void EntityId::operator=(uint32_t v) {
     id = hash = 0;
+}
+
+bool operator<(const EntityId &a, const EntityId &b) {
+    return a.id < b.id;
+}
+
+bool operator==(const EntityId &a, const EntityId &b) {
+    return a.id == b.id && a.hash == b.hash;
 }

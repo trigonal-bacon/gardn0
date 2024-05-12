@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-extern uint8_t INCOMING_PTR[1024 * 1024];
+extern uint8_t INCOMING_PACKET[1024 * 1024];
 class Socket {
 public:
     uint8_t ready = 0;

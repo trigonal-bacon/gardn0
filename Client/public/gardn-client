@@ -1199,30 +1199,34 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  15724: ($0) => { Module.ctxs[$0].save(); },  
- 15752: ($0) => { Module.ctxs[$0].restore(); },  
- 15783: () => { if (Module.availableCtxs.length) { const index = Module.availableCtxs.shift(); if (index == 0) return 0; const ocanvas = new OffscreenCanvas(1, 1); Module.ctxs[index] = ocanvas.getContext('2d'); return index; } throw new Error( 'Out of Contexts: Can be fixed by allowing more contexts'); return -1; },  
- 16086: ($0) => { if ($0 == 0) throw new Error('Tried to delete the main context'); Module.ctxs[$0] = null; Module.availableCtxs.push($0); },  
- 16211: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].fillStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")"; },  
- 16284: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].strokeStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")"; },  
- 16359: ($0, $1) => { Module.ctxs[$0].lineWidth = $1; },  
- 16395: ($0, $1) => { Module.ctxs[$0].lineWidth = $1 + "px Ubuntu"; },  
- 16445: ($0, $1) => { Module.ctxs[$0].globalAlpha = $1; },  
- 16483: ($0) => { Module.ctxs[$0].beginPath(); },  
- 16516: ($0, $1, $2) => { Module.ctxs[$0].moveTo($1, $2); },  
- 16552: ($0, $1, $2) => { Module.ctxs[$0].lineTo($1, $2); },  
- 16588: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].quadraticCurveTo($3, $4, $1, $2); },  
- 16642: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].bezierCurveTo($3, $4, $5, $6, $1, $2); },  
- 16701: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].arc($1, $2, $3, $4, $5, $6); },  
- 16750: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].ellipse($1, $2, $3, $4, 0, 2 * M_PI, 0); },  
- 16811: ($0) => { Module.ctxs[$0].fill(); },  
- 16839: ($0) => { Module.ctxs[$0].stroke(); },  
- 16869: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].setTransform($1, $2, $4, $5, $3, $6); },  
- 16927: () => { Module.canvas = document.createElement("canvas"); Module.canvas.id = "canvas"; Module.canvas.width = innerWidth * devicePixelRatio; Module.canvas.height = innerHeight * devicePixelRatio; Module.canvas.oncontextmenu = function() { return false; }; window.onbeforeunload = function(e) { return "Are you sure?"; }; document.body.appendChild(Module.canvas); Module.ctxs = [Module.canvas.getContext('2d')]; Module.availableCtxs = new Array(256).fill(0).map(function(_, i) { return i; }); },  
- 17414: () => { window.addEventListener("keydown", (e) => { _key_event(e.which, 0); }); window.addEventListener("keyup", (e) => { _key_event(e.which, 1); }); window.addEventListener("mousedown", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 0, +!!e.button); }); window.addEventListener("mousemove", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 1, +!!e.button); }); window.addEventListener("mouseup", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 2, +!!e.button); }); },  
- 17978: () => { function loop(time) { Module.canvas.width = innerWidth * devicePixelRatio; Module.canvas.height = innerHeight * devicePixelRatio; _loop(time, Module.canvas.width, Module.canvas.height); requestAnimationFrame(loop); }; requestAnimationFrame(loop); },  
- 18229: ($0, $1) => { let string = UTF8ToString($1); (function() { let socket = Module.socket = new WebSocket(string); socket.binaryType = "arraybuffer"; socket.onopen = function() { console.log("Connected"); _on_message(0); }; socket.onclose = function(a) { _on_message(2, a.code); }; socket.onmessage = function(event) { HEAPU8.set(new Uint8Array(event.data), $0); _on_message(1, event.data.length); }; })(); },  
- 18622: ($0, $1) => { if (Module.socket?.readyState == 1) { Module.socket.send(HEAPU8.subarray($0, $0+$1)); } }
+  25388: ($0) => { Module.ctxs[$0].save(); },  
+ 25416: ($0) => { Module.ctxs[$0].restore(); },  
+ 25447: () => { if (Module.availableCtxs.length) { const index = Module.availableCtxs.shift(); if (index == 0) return 0; const ocanvas = new OffscreenCanvas(1, 1); Module.ctxs[index] = ocanvas.getContext('2d'); return index; } throw new Error( 'Out of Contexts: Can be fixed by allowing more contexts'); return -1; },  
+ 25750: ($0) => { if ($0 == 0) throw new Error('Tried to delete the main context'); Module.ctxs[$0] = null; Module.availableCtxs.push($0); },  
+ 25875: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].fillStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")"; },  
+ 25948: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].strokeStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")"; },  
+ 26023: ($0, $1) => { Module.ctxs[$0].lineWidth = $1; },  
+ 26059: ($0, $1) => { Module.ctxs[$0].lineWidth = $1 + "px Ubuntu"; },  
+ 26109: ($0, $1) => { Module.ctxs[$0].globalAlpha = $1; },  
+ 26147: ($0) => { Module.ctxs[$0].beginPath(); },  
+ 26180: ($0, $1, $2) => { Module.ctxs[$0].moveTo($1, $2); },  
+ 26216: ($0, $1, $2) => { Module.ctxs[$0].lineTo($1, $2); },  
+ 26252: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].quadraticCurveTo($3, $4, $1, $2); },  
+ 26306: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].bezierCurveTo($3, $4, $5, $6, $1, $2); },  
+ 26365: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].arc($1, $2, $3, $4, $5, $6); },  
+ 26414: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].ellipse($1, $2, $3, $4, 0, 2 * Math.PI, 0); },  
+ 26478: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].fillRect($1, $2, $3, $4); },  
+ 26524: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].strokeRect($1, $2, $3, $4); },  
+ 26572: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].rect($1, $2, $3, $4); },  
+ 26614: ($0) => { Module.ctxs[$0].fill(); },  
+ 26642: ($0) => { Module.ctxs[$0].stroke(); },  
+ 26672: ($0) => { Module.ctxs[$0].clip(); },  
+ 26700: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].setTransform($1, $2, $4, $5, $3, $6); },  
+ 26758: () => { Module.canvas = document.createElement("canvas"); Module.canvas.id = "canvas"; Module.canvas.width = innerWidth * devicePixelRatio; Module.canvas.height = innerHeight * devicePixelRatio; Module.canvas.oncontextmenu = function() { return false; }; window.onbeforeunload = function(e) { return "Are you sure?"; }; document.body.appendChild(Module.canvas); Module.ctxs = [Module.canvas.getContext('2d')]; Module.availableCtxs = new Array(256).fill(0).map(function(_, i) { return i; }); },  
+ 27245: () => { window.addEventListener("keydown", (e) => { _key_event(e.which, 0); }); window.addEventListener("keyup", (e) => { _key_event(e.which, 1); }); window.addEventListener("mousedown", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 0, +!!e.button); }); window.addEventListener("mousemove", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 1, +!!e.button); }); window.addEventListener("mouseup", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 2, +!!e.button); }); },  
+ 27809: () => { function loop(time) { Module.canvas.width = innerWidth * devicePixelRatio; Module.canvas.height = innerHeight * devicePixelRatio; _loop(time, Module.canvas.width, Module.canvas.height); requestAnimationFrame(loop); }; requestAnimationFrame(loop); },  
+ 28060: ($0, $1) => { let string = UTF8ToString($1); (function() { let socket = Module.socket = new WebSocket(string); socket.binaryType = "arraybuffer"; socket.onopen = function() { console.log("Connected"); _on_message(0); }; socket.onclose = function(a) { console.log("Disconnected"); _on_message(2, a.code); }; socket.onmessage = function(event) { HEAPU8.set(new Uint8Array(event.data), $0); _on_message(1, event.data.length); }; })(); },  
+ 28482: ($0, $1) => { if (Module.socket?.readyState == 1) { Module.socket.send(HEAPU8.subarray($0, $0+$1)); } }
 };
 
 
@@ -1293,6 +1297,10 @@ var ASM_CONSTS = {
         if (ENVIRONMENT_IS_NODE) text = 'warning: ' + text;
         err(text);
       }
+    }
+
+  function ___assert_fail(condition, filename, line, func) {
+      abort('Assertion failed: ' + UTF8ToString(condition) + ', at: ' + [filename ? UTF8ToString(filename) : 'unknown filename', line, func ? UTF8ToString(func) : 'unknown function']);
     }
 
   function ___cxa_allocate_exception(size) {
@@ -4428,6 +4436,7 @@ function checkIncomingModuleAPI() {
   ignoredModuleProp('fetchSettings');
 }
 var asmLibraryArg = {
+  "__assert_fail": ___assert_fail,
   "__cxa_allocate_exception": ___cxa_allocate_exception,
   "__cxa_throw": ___cxa_throw,
   "abort": _abort,

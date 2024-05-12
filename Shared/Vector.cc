@@ -6,6 +6,8 @@ Vector::Vector() {}
 
 Vector::Vector(Vector &o) : x(o.x) , y(o.y) {}
 
+Vector::Vector(float _x, float _y) : x(_x), y(_y) {}
+
 void Vector::set(float _x, float _y) {
     x = _x;
     y = _y;

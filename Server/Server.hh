@@ -9,15 +9,16 @@
 class Client;
 
 static const int max_buffer_size = 1024 * 1024;
+extern uint8_t OUTGOING_PACKET[max_buffer_size];
 
 class Server {
 public:
     Simulation simulation;
     uWS::App *server;
-    std::set<Client *> sockets;
+    std::set<Client *> clients;
     Server();
     void run();
     void tick();
 };
 
-extern Server _server;
+extern Server global_server;

@@ -2,14 +2,17 @@
 
 #include <Shared/Helpers.hh>
 
+#include <set>
+#include <stdint.h>
 #include <App.h>
 
 class Client {
 public:
     EntityId camera;
-    uint8_t alive;
+    std::set<EntityId> last_in_view;
     uWS::WebSocket<false, true, Client> *ws;
-    Client();
-    ~Client();
+    void init();
+    void remove();
+    uint8_t alive();
     //void on_message();
 };

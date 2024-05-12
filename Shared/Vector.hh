@@ -6,6 +6,7 @@ public:
     float y;
     Vector();
     Vector(Vector &);
+    Vector(float, float);
     Vector &operator=(Vector &);
     Vector &operator+=(Vector &);
     Vector &operator*=(float);

@@ -27,11 +27,13 @@ public:
     uint16_t hash = 0;
     EntityId();
     EntityId(uint16_t, uint16_t);
-    uint8_t null();
-    void operator=(EntityId);
-    uint8_t operator==(EntityId);
+    bool null();
+    void operator=(const EntityId &);
     void operator=(uint32_t);
 };
+
+bool operator<(const EntityId &, const EntityId &);
+bool operator==(const EntityId &, const EntityId &);
 
 constexpr uint32_t bit_count(uint32_t v) {return 32 - __builtin_clz(v - 1); };
 constexpr uint32_t bit_fill(uint32_t v) { return (1 << v) - 1; }; 
@@ -40,13 +42,15 @@ double frand();
 float fclamp(float, float, float); 
 float lerp(float, float, float);
 
+#define LERP(result, from, amt) { result = lerp(result, from, amt); }
+
 template<typename T, uint32_t capacity>
 class StaticArray {
 public:
     T values[capacity];
     uint32_t length;
     StaticArray() : length(0) {};
-    T operator[](uint32_t at) { return values[at]; };
+    T &operator[](uint32_t at) { return values[at]; };
     void push(T val) { DEBUG_ONLY(assert(length < capacity); ) values[length++] = val; };
     void clear() { length = 0;}
     int32_t index_of(T val) {

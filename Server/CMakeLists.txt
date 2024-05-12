@@ -4,6 +4,7 @@ project(gardn-server)
 include_directories(..)
 
 set(SOURCES
+    Process/Collision.cc
     Process/Motion.cc
     Client.cc
     Main.cc
@@ -18,9 +19,9 @@ set(SOURCES
 )
 
 if(DEBUG)
-    set(CMAKE_CXX_FLAGS "-std=c++17 -gdwarf-4 -lpthread -DDEBUG=1")
+    set(CMAKE_CXX_FLAGS "-std=c++20 -gdwarf-4 -lpthread -DDEBUG=1")
 else()
-    set(CMAKE_CXX_FLAGS "-std=c++17 -O3")
+    set(CMAKE_CXX_FLAGS "-std=c++20 -O3")
 endif()
 set(CMAKE_CXX_COMPILER "g++")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSERVER_SIDE=1")
