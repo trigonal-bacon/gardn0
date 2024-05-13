@@ -7,34 +7,85 @@
 #include <iostream>
 #include <set>
 
+Entity &Simulation::alloc_mob(uint8_t mob_id) {
+    Entity &mob = alloc_ent();
+    mob.add_component(kPhysics);
+    mob.set_angle(frand() * 2 * M_PI);
+    mob.set_radius(MOB_DATA[mob_id].radius);
+    mob.friction = DEFAULT_FRICTION;
+    mob.add_component(kRelations);
+    mob.set_team(NULL_ENTITY);
+    mob.add_component(kHealth);
+    mob.set_max_health(MOB_DATA[mob_id].health);
+    mob.set_health(MOB_DATA[mob_id].health);
+    mob.damage = MOB_DATA[mob_id].damage;
+    mob.add_component(kMob);
+    mob.set_mob_id(mob_id);
+    mob.add_component(kScore);
+    mob.set_score(MOB_DATA[mob_id].xp * 2); //double since killing = half
+    return mob;
+}
+
+Entity &Simulation::alloc_petal(uint8_t petal_id) {
+    Entity &petal = alloc_ent();
+    petal.add_component(kPhysics);
+    petal.set_radius(PETAL_DATA[petal_id].radius);
+    petal.friction = DEFAULT_FRICTION;
+    petal.mass = 0.2;
+    petal.add_component(kRelations);
+    petal.add_component(kPetal);
+    petal.set_petal_id(petal_id);
+    petal.add_component(kHealth);
+    petal.set_max_health(PETAL_DATA[petal_id].health);
+    petal.set_health(PETAL_DATA[petal_id].health);
+    petal.damage = PETAL_DATA[petal_id].damage;
+    return petal;
+}
+
+Entity &Simulation::alloc_player(Entity &camera) {
+    Entity &player = alloc_ent();
+    player.add_component(kPhysics);
+    player.set_x(camera.camera_x);
+    player.set_y(camera.camera_y);
+    player.set_radius(25);
+    player.friction = DEFAULT_FRICTION;
+    player.add_component(kFlower);
+    camera.set_player(player.id);
+    player.add_component(kRelations);
+    player.set_parent(camera.id);
+    player.set_team(camera.id);
+    player.add_component(kHealth);
+    player.set_health(100);
+    player.set_max_health(100);
+    player.damage = 25;
+    return player;
+}
+
 void Simulation::tick() {
-    if (frand() < 0.1) {
-        Entity &mob = alloc_ent();
-        uint8_t mob_id = kBabyAnt;
-        mob.add_component(kPhysics);
+    if (frand() < 0.01) {
+        Entity &mob = alloc_mob(kBabyAnt);
         mob.set_x(frand() * ARENA_WIDTH);
         mob.set_y(frand() * ARENA_HEIGHT);
-        mob.set_angle(frand() * 2 * M_PI);
-        mob.set_radius(MOB_DATA[mob_id].radius);
-        mob.add_component(kRelations);
-        mob.set_team(NULL_ENTITY);
-        mob.add_component(kHealth);
-        mob.set_max_health(MOB_DATA[mob_id].health);
-        mob.set_health(MOB_DATA[mob_id].health);
-        mob.damage = MOB_DATA[mob_id].damage;
-        mob.add_component(kMob);
-        mob.set_mob_id(mob_id);
     }
     pre_tick();
     for (uint32_t i = 0; i < active_entities.length; ++i) {
         Entity &ent = get_ent(active_entities[i]);
+        ent.damaged = 0; //very ugly but whatever, will make component vectors later
         if (ent.has_component(kPhysics)) spatial_hash.insert(ent);
     }
     spatial_hash.collide();
     tick_petal_behavior(this);
     for (uint32_t i = 0; i < active_entities.length; ++i) {
         Entity &ent = get_ent(active_entities[i]);
-        if (ent.has_component(kPhysics)) tick_entity_motion(this, ent);
+        if (ent.has_component(kMob) && !ent.pending_delete) tick_mob_ai(this, ent);
+    }
+    for (uint32_t i = 0; i < active_entities.length; ++i) {
+        Entity &ent = get_ent(active_entities[i]);
+        if (ent.has_component(kDrop) && !ent.pending_delete) tick_drop_behavior(this, ent);
+    }
+    for (uint32_t i = 0; i < active_entities.length; ++i) {
+        Entity &ent = get_ent(active_entities[i]);
+        if (ent.has_component(kPhysics) && !ent.pending_delete) tick_entity_motion(this, ent);
     }
     post_tick();
 }
@@ -55,18 +106,20 @@ static void _ent_on_delete(Simulation *simulation, Entity &ent) {
             drop.add_component(kPhysics);
             drop.set_x(ent.x);
             drop.set_y(ent.y);
-            drop.set_radius(25);
-            drop.set_angle(0);
-            drop.friction = 0.2;
+            drop.set_radius(0);
+            drop.set_angle(-M_PI);
+            drop.friction = 0.4;
             drop.add_component(kRelations);
             drop.set_team(NULL_ENTITY);
             drop.add_component(kDrop);
             drop.set_drop_id(drops[i]);
+            drop.despawn_ticks = 0;
             if (count > 1) {
                 Vector v;
-                v.unit_normal(2 * M_PI * i / count).set_magnitude(10);
-                drop.velocity = v;
+                v.unit_normal(2 * M_PI * i / count).set_magnitude(SERVER_TIME(PLAYER_ACCELERATION) * 0.75);
+                drop.acceleration = v;
             }
+            simulation->spatial_hash.insert(drop);
         }
     }
 }

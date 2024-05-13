@@ -33,6 +33,9 @@ SERVER_ONLY(SpatialHash spatial_hash;)
     void post_tick();
 #ifdef SERVER_SIDE
     void update_client(Client *);
+    Entity &alloc_mob(uint8_t);
+    Entity &alloc_player(Entity &);
+    Entity &alloc_petal(uint8_t);
 #else
     void tick_lerp(double);
 #endif

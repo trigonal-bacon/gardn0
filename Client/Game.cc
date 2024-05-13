@@ -42,9 +42,88 @@ void Game::render_game() {
     renderer.translate(renderer.width / 2, renderer.height / 2);
     renderer.scale(scale * camera.lerp_fov);
     renderer.translate(-camera.lerp_camera_x, -camera.lerp_camera_y);
-    renderer.set_fill(0xff03a824);
-    renderer.begin_path();
-    renderer.fill_rect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+    uint32_t alpha = (uint32_t)(camera.lerp_fov * 255 * 0.2) << 24;
+    {
+        RenderContext context(&renderer);
+        renderer.reset_transform();
+        renderer.set_fill(0xff1ea761);
+        renderer.fill_rect(0,0,renderer.width,renderer.height);
+        renderer.set_fill(alpha);
+        renderer.fill_rect(0,0,renderer.width,renderer.height);
+    }
+    {
+        RenderContext context(&renderer);
+        renderer.set_fill(0xff1ea761);
+        renderer.fill_rect(0,0,ARENA_WIDTH,ARENA_HEIGHT);
+        renderer.set_stroke(alpha);
+        renderer.set_line_width(1);
+        float _scale = camera.lerp_fov * scale;
+        float leftX = camera.lerp_camera_x - renderer.width / (2 * _scale);
+        float rightX = camera.lerp_camera_x + renderer.width / (2 * _scale);
+        float topY = camera.lerp_camera_y - renderer.height / (2 * _scale);
+        float bottomY = camera.lerp_camera_y + renderer.height / (2 * _scale);
+        float newLeftX = ceilf(leftX / 50) * 50;
+        float newTopY = ceilf(topY / 50) * 50;
+        renderer.begin_path();
+        for (; newLeftX < rightX; newLeftX += 50)
+        {
+            renderer.move_to(newLeftX, topY);
+            renderer.line_to(newLeftX, bottomY);
+        }
+        for (; newTopY < bottomY; newTopY += 50)
+        {
+            renderer.move_to(leftX, newTopY);
+            renderer.line_to(rightX, newTopY);
+        }
+        renderer.stroke();
+    }
+    //render arena
+    /*
+
+            rr_renderer_fill_rect(this->renderer, 0, 0, renderer.width,
+                                  renderer.height);
+            rr_renderer_set_fill(this->renderer, alpha);
+            rr_renderer_fill_rect(this->renderer, 0, 0, renderer.width,
+                                  renderer.height);
+            rr_renderer_context_state_free(this->renderer, &state2);
+            rr_renderer_context_state_init(this->renderer, &state2);
+
+            struct rr_component_arena *arena =
+                rr_simulation_get_arena(this->simulation, 1);
+            rr_renderer_begin_path(this->renderer);
+            rr_renderer_arc(this->renderer, 0, 0, arena->radius);
+            rr_renderer_set_fill(this->renderer, 0xff1ea761);
+            rr_renderer_fill(this->renderer);
+            rr_renderer_clip(this->renderer);
+
+            rr_renderer_set_stroke(this->renderer, alpha);
+            rr_renderer_set_line_width(this->renderer, 1);
+
+            float scale = camera.lerp_camera_fov * renderer.scale;
+            float leftX = camera.lerp_camera_x - renderer.width / (2 * scale);
+            float rightX = camera.lerp_camera_x + renderer.width / (2 * scale);
+            float topY = camera.lerp_camera_y - renderer.height / (2 * scale);
+            float bottomY = camera.lerp_camera_y + renderer.height / (2 * scale);
+            float newLeftX = ceilf(leftX / 50) * 50;
+            float newTopY = ceilf(topY / 50) * 50;
+            for (; newLeftX < rightX; newLeftX += 50)
+            {
+                rr_renderer_begin_path(this->renderer);
+                rr_renderer_move_to(this->renderer, newLeftX, topY);
+                rr_renderer_line_to(this->renderer, newLeftX, bottomY);
+                rr_renderer_stroke(this->renderer);
+            }
+            for (; newTopY < bottomY; newTopY += 50)
+            {
+                rr_renderer_begin_path(this->renderer);
+                rr_renderer_move_to(this->renderer, leftX, newTopY);
+                rr_renderer_line_to(this->renderer, rightX, newTopY);
+                rr_renderer_stroke(this->renderer);
+            }
+            rr_renderer_set_global_alpha(this->renderer, 1);
+
+            rr_renderer_context_state_free(this->renderer, &state2);
+            */
     for (uint32_t i = 0; i < simulation.active_entities.length; ++i) {
         Entity &ent = simulation.get_ent(simulation.active_entities[i]);
         if (ent.has_component(kHealth)) {
@@ -106,8 +185,8 @@ void Game::send_inputs() {
         float y = input.mouse_y - renderer.height / 2;
         writer.write_float(x);
         writer.write_float(y);
-        uint8_t attack = input.keys_pressed.contains('\x20') || input.mouse_buttons_state & 1;
-        uint8_t defend = input.keys_pressed.contains('\x10') || input.mouse_buttons_state & 2;
+        uint8_t attack = input.keys_pressed.contains('\x20') || BIT_AT(input.mouse_buttons_state, 0);
+        uint8_t defend = input.keys_pressed.contains('\x10') || BIT_AT(input.mouse_buttons_state, 1);
         writer.write_uint8(attack | (defend << 1));
         socket.send(writer.packet, writer.at - writer.packet);
     }

@@ -8,6 +8,8 @@ class RenderContext {
     Renderer *renderer;
 public:
     float transform_matrix[6] = {0};
+    uint32_t color_filter = 0xff000000;
+    float amount = 0;
     RenderContext(Renderer *);
     ~RenderContext();
 };
@@ -21,6 +23,10 @@ public:
     Renderer();
     ~Renderer();
 
+    static uint32_t HSV(uint32_t, float);
+    static uint32_t MIX(uint32_t, uint32_t, float);
+
+    void add_color_filter(uint32_t, float);
     void set_fill(uint32_t);
     void set_stroke(uint32_t);
     
@@ -46,7 +52,7 @@ public:
     void arc(float, float, float);
     void ellipse(float, float, float, float);
     void rect(float, float, float, float);
-    void roud_rect(float, float, float, float, float);
+    void round_rect(float, float, float, float, float);
     void fill_rect(float, float, float, float);
     void stroke_rect(float, float, float, float);
 

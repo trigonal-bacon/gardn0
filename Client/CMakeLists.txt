@@ -6,6 +6,8 @@ project(gardn-client)
 include_directories(..)
 
 set(SRCS
+    Assets/Petal.cc
+    Assets/Mob.cc
     Render/Renderer.cc
     Render/RenderDrop.cc
     Render/RenderFlower.cc

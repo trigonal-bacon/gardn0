@@ -4,10 +4,13 @@ project(gardn-server)
 include_directories(..)
 
 set(SOURCES
+    Process/Ai.cc
     Process/Collision.cc
+    Process/Drop.cc
     Process/Motion.cc
     Process/PetalBehavior.cc
     Client.cc
+    EntityFunctions.cc
     Main.cc
     Simulation.cc
     Server.cc

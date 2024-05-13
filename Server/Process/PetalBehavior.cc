@@ -1,7 +1,11 @@
 #include <Server/Process/Process.hh>
 
+#include <Server/EntityFunctions.hh>
+
 #include <Shared/Simulation.hh>
 #include <Shared/Entity.hh>
+
+#include <Shared/Helpers.hh>
 
 #include <cmath>
 #include <iostream>
@@ -11,7 +15,7 @@ void tick_petal(Simulation *simulation, Entity &petal, uint32_t rot_pos, uint32_
     assert(simulation->ent_alive(petal.parent));
     Entity &player = simulation->get_ent(petal.parent);
     Vector move_to;
-    float mag = (player.input & 1) ? 150 : (player.input & 2) ? 50 : 75;
+    float mag = (BIT_AT(player.input, 0)) ? 150 : (BIT_AT(player.input, 1)) ? 50 : 75;
     move_to.unit_normal(M_PI * 2 * rot_pos / player.rotation_count + player.rotation_angle).set_magnitude(mag);
     move_to.x += player.x - petal.x;
     move_to.y += player.y - petal.y;
@@ -20,9 +24,9 @@ void tick_petal(Simulation *simulation, Entity &petal, uint32_t rot_pos, uint32_
         clump_vector.unit_normal(player.rotation_angle * 0.75 + 2 * M_PI * secondary_pos / PETAL_DATA[petal.petal_id].count).set_magnitude(PETAL_DATA[petal.petal_id].clump_radius);
         move_to += clump_vector;
     }
-    move_to *= 0.6;
+    move_to *= 0.5;
     petal.acceleration = move_to;
-    petal.set_angle(fmod(petal.angle + 2 * SERVER_DT, M_PI * 2));
+    petal.set_angle(fmod(petal.angle + REAL_TIME(2), M_PI * 2));
 }
 
 static void petal_behavior(Simulation *simulation, Entity &player) {
@@ -32,27 +36,21 @@ static void petal_behavior(Simulation *simulation, Entity &player) {
     uint32_t rotation_pos = 0;
     for (uint32_t i = 0; i < camera.loadout_count; ++i) {
         LoadoutSlot &slot = camera.loadout[i];
+        camera.set_loadout_ids(i, slot.id);
         if (slot.id == 0) continue;
+        if (slot.id == kLeaf) inflict_heal(simulation, player, REAL_TIME(1));
+        uint32_t max = SERVER_TIME(PETAL_DATA[slot.id].reload);
+        uint32_t min = max;
         for (uint32_t j = 0; j < PETAL_DATA[slot.id].count; ++j) {
             LoadoutPetal &petal_slot = slot.petals[j];
+            if (petal_slot.reload < min) min = petal_slot.reload;
             if (!simulation->ent_alive(petal_slot.ent_id)) {
-                if (++petal_slot.reload >= PETAL_DATA[slot.id].reload / SERVER_DT) {
-                    Entity &petal = simulation->alloc_ent();
-                    petal.add_component(kPhysics);
+                if (++petal_slot.reload >= SERVER_TIME(PETAL_DATA[slot.id].reload)) {
+                    Entity &petal = simulation->alloc_petal(slot.id);
                     petal.set_x(player.x);
                     petal.set_y(player.y);
-                    petal.set_radius(PETAL_DATA[slot.id].radius);
-                    petal.friction = 0.25;
-                    petal.add_component(kRelations);
                     petal.set_parent(player.id);
                     petal.set_team(player.parent);
-                    petal.add_component(kPetal);
-                    petal.set_petal_id(slot.id);
-                    petal.add_component(kHealth);
-                    petal.set_max_health(PETAL_DATA[slot.id].health);
-                    petal.set_health(PETAL_DATA[slot.id].health);
-                    petal.damage = PETAL_DATA[slot.id].damage;
-                    std::cout << "petal create " << petal.id.id << '\n';
                     petal_slot.ent_id = petal.id;
                 }
             } else {
@@ -63,9 +61,13 @@ static void petal_behavior(Simulation *simulation, Entity &player) {
             if (PETAL_DATA[slot.id].clump_radius == 0) ++rotation_pos;
         }
         if (PETAL_DATA[slot.id].clump_radius != 0) ++rotation_pos;
+        camera.set_loadout_reloads(i, min * 255 / max);
     }
     player.rotation_count = rotation_pos;
-    player.rotation_angle += 2.5 * SERVER_DT;
+    player.rotation_angle += REAL_TIME(2.5);
+
+    camera.set_experience(player.score);
+    player.set_face_flags(BIT_SHIFT(BIT_AT(player.input, 0), 0) | BIT_SHIFT(BIT_AT(player.input, 1), 1));
     //player.rotation_angle = fmod(player.rotation_angle, 2 * M_PI);
 }
 

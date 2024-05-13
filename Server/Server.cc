@@ -56,7 +56,7 @@ void Server::run() {
                     else {
                         if (fabsf(x) > 5e3 || fabsf(y) > 5e3) break;
                         Vector accel(x,y);
-                        accel.normalize().set_magnitude(PLAYER_ACCELERATION * SERVER_DT);
+                        accel.normalize().set_magnitude(PLAYER_ACCELERATION);
                         player.acceleration = accel;
                     }
                     player.input = reader.read_uint8() & 3;
@@ -66,23 +66,10 @@ void Server::run() {
                     std::cout << "client spawn\n";
                     if (client->alive()) break;
                     Entity &camera = global_server.simulation.get_ent(client->camera);
-                    Entity &player = global_server.simulation.alloc_ent();
-                    player.add_component(kPhysics);
-                    player.set_x(camera.camera_x);
-                    player.set_y(camera.camera_y);
-                    player.set_radius(25);
-                    player.friction = 0.75;
-                    player.add_component(kFlower);
-                    camera.set_player(player.id);
+                    Entity &player = global_server.simulation.alloc_player(camera);
+                    
                     camera.set_loadout_count(5);
-                    player.add_component(kRelations);
-                    player.set_parent(client->camera);
-                    player.set_team(client->camera);
-                    player.add_component(kHealth);
-                    player.set_health(100);
-                    player.set_max_health(100);
-                    player.damage = 25;
-                    //for (uint32_t i = 0; i < 5; ++i) camera.loadout[i].reset();
+                    for (uint32_t i = 0; i < 8; ++i) camera.loadout[i].reset();
                     break;
                 }
                 default:

@@ -48,13 +48,32 @@ Renderer::~Renderer() {
     DEBUG_ONLY(std::cout << "removed canvas " << id << '\n';)
 }
 
+uint32_t Renderer::HSV(uint32_t c, float v) {
+    return MIX(c, 0xff000000, v);
+}
+
+uint32_t Renderer::MIX(uint32_t c, uint32_t c2, float v) {
+    uint8_t b = fclamp((c & 255) * v + (c2 & 255) * (1 - v), 0, 255);
+    uint8_t g = fclamp(((c >> 8) & 255) * v + ((c2 >> 8) & 255) * (1 - v), 0, 255);
+    uint8_t r = fclamp(((c >> 16) & 255) * v + ((c2 >> 16) & 255) * (1 - v), 0, 255);
+    uint8_t a = fclamp(((c >> 24) & 255) * v + ((c2 >> 24) & 255) * (1 - v), 0, 255);
+    return (a << 24) | (r << 16) | (g << 8) | b;
+}
+
+void Renderer::add_color_filter(uint32_t c, float v) {
+    context.color_filter = c;
+    context.amount = v;
+}
+
 void Renderer::set_fill(uint32_t v) {
+    v = MIX(context.color_filter, v, context.amount);
     EM_ASM({
     Module.ctxs[$0].fillStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")";
     }, id, v & 255, (v >> 8) & 255, (v >> 16) & 255, v >> 24);
 }
 
 void Renderer::set_stroke(uint32_t v) {
+    v = MIX(context.color_filter, v, context.amount);
     EM_ASM({
     Module.ctxs[$0].strokeStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")";
     }, id, v & 255, (v >> 8) & 255, (v >> 16) & 255, v >> 24);
@@ -124,8 +143,8 @@ void Renderer::scale(float x, float y) {
 }
 
 void Renderer::translate(float x, float y) {
-    context.transform_matrix[2] += x * context.transform_matrix[0];
-    context.transform_matrix[5] += y * context.transform_matrix[4];
+    context.transform_matrix[2] += x * context.transform_matrix[0] + y * context.transform_matrix[3];
+    context.transform_matrix[5] += y * context.transform_matrix[4] + x * context.transform_matrix[1];
     update_transform(this);
 }
 
@@ -210,6 +229,18 @@ void Renderer::rect(float x, float y, float w, float h) {
 EM_ASM({
     Module.ctxs[$0].rect($1, $2, $3, $4);
 }, id, x, y, w, h);
+}
+
+void Renderer::round_rect(float x, float y, float w, float h, float r) {
+    move_to(x + r, y);
+    line_to(x + w - r, y);
+    qcurve_to(x + w, y, x + w, y + r);
+    line_to(x + w, y + h - r);
+    qcurve_to(x + w, y + h, x + w - r, y + h);
+    line_to(x + r, y + h);
+    qcurve_to(x, y + h, x, y + h - r);
+    line_to(x, y + r);
+    qcurve_to(x, y, x + r, y);
 }
 
 void Renderer::fill() {

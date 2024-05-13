@@ -36,6 +36,11 @@ public:
     void operator=(uint32_t);
 };
 
+enum kMobAiState {
+    kIdle,
+    kIdleMoving
+};
+
 bool operator<(const EntityId &, const EntityId &);
 bool operator==(const EntityId &, const EntityId &);
 
@@ -45,8 +50,13 @@ constexpr uint32_t div_round_up(uint32_t a, uint32_t b) { return (a + b - 1) / b
 double frand();
 float fclamp(float, float, float); 
 float lerp(float, float, float);
+float angle_lerp(float, float, float);
 
 #define LERP(result, from, amt) { result = lerp(result, from, amt); }
+#define ANGLE_LERP(result, from, amt) { result = angle_lerp(result, from, amt); }
+
+#define BIT_AT(val, bit) (((val) >> (bit)) & 1)
+#define BIT_SHIFT(bit, shift) ((bit) << (shift))
 
 template<typename T, uint32_t capacity>
 class StaticArray {

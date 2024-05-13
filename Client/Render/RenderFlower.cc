@@ -7,6 +7,7 @@
 void render_flower(Entity &ent, Renderer &ctx) {
     ctx.set_global_alpha(1 - ent.lerp_deletion_tick * 0.2);
     ctx.scale(1 + 0.1 * ent.lerp_deletion_tick);
+    ctx.add_color_filter(0xffac0000, ent.damage_flash);
     ctx.set_stroke(0xffcfbb50);
     ctx.set_fill(0xffffe763);
     ctx.set_line_width(3);
@@ -30,6 +31,25 @@ void render_flower(Entity &ent, Renderer &ctx) {
         ctx.begin_path();
         ctx.arc(-7 + ent.lerp_eye_x, -5 + ent.lerp_eye_y, 3);
         ctx.arc(7 + ent.lerp_eye_x, -5 + ent.lerp_eye_y, 3);
+        ctx.fill();
+    }
+    ctx.set_stroke(0xff222222);
+    ctx.set_line_width(1.5);
+    ctx.round_line_cap();
+    ctx.begin_path();
+    ctx.move_to(-6, 10);
+    ctx.qcurve_to(0, ent.lerp_mouth, 6, 10);
+    ctx.stroke();
+    if (ent.lerp_mouth <= 8)
+    {
+        RenderContext context(&ctx);
+        ctx.translate(0, -ent.lerp_mouth - 8);
+        ctx.set_fill(0xffffe763);
+        ctx.begin_path();
+        ctx.move_to(-12, 0);
+        ctx.line_to(12, 0);
+        ctx.line_to(0, 6);
+        ctx.line_to(-12, 0);
         ctx.fill();
     }
 }
