@@ -23,7 +23,7 @@ void tick_baby_ant_ai(Simulation *simulation, Entity &entity) {
                 entity.ai_state = kIdle;
             }
             else if (entity.ai_ticks_to_next_action > SERVER_TIME(0.25)) {
-                entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION);
+                entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION / 2);
             }
             break;
         }

@@ -56,7 +56,9 @@ void Server::run() {
                     else {
                         if (fabsf(x) > 5e3 || fabsf(y) > 5e3) break;
                         Vector accel(x,y);
-                        accel.normalize().set_magnitude(PLAYER_ACCELERATION);
+                        float m = accel.magnitude();
+                        if (m > 200) accel.normalize().set_magnitude(PLAYER_ACCELERATION);
+                        else accel.normalize().set_magnitude(m / 200 * PLAYER_ACCELERATION);
                         player.acceleration = accel;
                     }
                     player.input = reader.read_uint8() & 3;

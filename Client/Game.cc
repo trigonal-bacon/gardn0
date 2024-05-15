@@ -7,8 +7,57 @@
 Game *gardn = nullptr;
 
 Game::Game() {
+    ui::g_window = &window;
+    ui::g_renderer = &renderer;
+    ui::g_focused = &window;
+    ui::g_input = &input;
     gardn = this;
     socket.connect("ws://localhost:9001");
+    /*
+    window.add_child(new ui::HContainer{
+        new ui::VContainer{
+            new ui::StaticLabel{{"this is a text, ", 30}},
+            new ui::StaticLabel{{"this is another text", 30}}
+        },
+        new ui::StaticLabel{{"this is a text, ", 30}},
+        new ui::StaticLabel{{"this is another text", 30}}
+    });
+    */
+    window.add_child(
+        ui::SetRenderCondition(
+            [&](){ return !alive() && !in_game; },
+            new ui::VContainer{
+                new ui::StaticLabel{{"Gardn.funny", 45}},
+                new ui::StaticSpace(0,10),
+                ui::AddTheme(
+                    ui::VisualData::ButtonBackground(0xfff34856),
+                    ui::SetRenderCondition(
+                    [&](){ return simulation_ready; },
+                        new ui::Button(120, 20, new ui::StaticLabel{{"Enter Game", 20}}, [&](){
+                            if (!alive()) {
+                                uint8_t packet[16];
+                                Writer writer(static_cast<uint8_t *>(packet));
+                                writer.write_uint8(kServerbound::kClientSpawn);
+                                socket.send(writer.packet, writer.at - writer.packet);
+                                in_game = 1;
+                            }
+                        })
+                    )
+                )
+            }
+        )
+    );
+    window.add_child(
+        ui::SetRenderCondition(
+            [&](){ return !alive() && in_game; },
+            ui::AddTheme(
+                ui::VisualData::ButtonBackground(0xfff34856),
+                new ui::Button(120, 20, new ui::StaticLabel{{"Continue", 20}}, [&](){
+                    in_game = 0;
+                })
+            )
+        )
+    );
 }
 
 uint8_t Game::alive() {
@@ -21,8 +70,9 @@ void Game::tick(double time) {
     renderer.reset_transform();
     simulation.tick();
     simulation.tick_lerp(delta);
+    renderer.context.reset();
 
-    if (simulation_ready && alive()) render_game();
+    if (simulation_ready && (ui_circle_large > 0)) render_game();
 
     render_ui();
     
@@ -77,53 +127,7 @@ void Game::render_game() {
         }
         renderer.stroke();
     }
-    //render arena
-    /*
 
-            rr_renderer_fill_rect(this->renderer, 0, 0, renderer.width,
-                                  renderer.height);
-            rr_renderer_set_fill(this->renderer, alpha);
-            rr_renderer_fill_rect(this->renderer, 0, 0, renderer.width,
-                                  renderer.height);
-            rr_renderer_context_state_free(this->renderer, &state2);
-            rr_renderer_context_state_init(this->renderer, &state2);
-
-            struct rr_component_arena *arena =
-                rr_simulation_get_arena(this->simulation, 1);
-            rr_renderer_begin_path(this->renderer);
-            rr_renderer_arc(this->renderer, 0, 0, arena->radius);
-            rr_renderer_set_fill(this->renderer, 0xff1ea761);
-            rr_renderer_fill(this->renderer);
-            rr_renderer_clip(this->renderer);
-
-            rr_renderer_set_stroke(this->renderer, alpha);
-            rr_renderer_set_line_width(this->renderer, 1);
-
-            float scale = camera.lerp_camera_fov * renderer.scale;
-            float leftX = camera.lerp_camera_x - renderer.width / (2 * scale);
-            float rightX = camera.lerp_camera_x + renderer.width / (2 * scale);
-            float topY = camera.lerp_camera_y - renderer.height / (2 * scale);
-            float bottomY = camera.lerp_camera_y + renderer.height / (2 * scale);
-            float newLeftX = ceilf(leftX / 50) * 50;
-            float newTopY = ceilf(topY / 50) * 50;
-            for (; newLeftX < rightX; newLeftX += 50)
-            {
-                rr_renderer_begin_path(this->renderer);
-                rr_renderer_move_to(this->renderer, newLeftX, topY);
-                rr_renderer_line_to(this->renderer, newLeftX, bottomY);
-                rr_renderer_stroke(this->renderer);
-            }
-            for (; newTopY < bottomY; newTopY += 50)
-            {
-                rr_renderer_begin_path(this->renderer);
-                rr_renderer_move_to(this->renderer, leftX, newTopY);
-                rr_renderer_line_to(this->renderer, rightX, newTopY);
-                rr_renderer_stroke(this->renderer);
-            }
-            rr_renderer_set_global_alpha(this->renderer, 1);
-
-            rr_renderer_context_state_free(this->renderer, &state2);
-            */
     for (uint32_t i = 0; i < simulation.active_entities.length; ++i) {
         Entity &ent = simulation.get_ent(simulation.active_entities[i]);
         if (ent.has_component(kHealth)) {
@@ -171,7 +175,35 @@ void Game::render_game() {
 }
 
 void Game::render_ui() {
-
+    {
+        RenderContext context(&renderer);
+        //circle thing for transitioning
+        float dir = in_game ? 1 : -1;
+        ui_circle_large = fclamp(ui_circle_large + dir * delta * 1.5, 0, 1100);
+        if (ui_circle_large > 0 && ui_circle_large < 1100) {
+            renderer.set_stroke(0xffffffff);
+            renderer.set_line_width(10 * scale);
+            renderer.begin_path();
+            renderer.arc(renderer.width / 2, renderer.height / 2, ui_circle_large * scale);
+            renderer.stroke();
+            renderer.begin_path();
+            renderer.rect(0, 0, renderer.width, renderer.height);
+            renderer.reverse_arc(renderer.width / 2, renderer.height / 2, ui_circle_large * scale);
+            renderer.clip();
+        }
+        if (ui_circle_large < 1100) {
+            renderer.set_fill(0xff1e61a7);
+            renderer.fill_rect(0,0,renderer.width,renderer.height);
+        }
+    }
+    ui::g_frame_dt = delta;
+    ui::Element *prev_focused = ui::g_focused;
+    ui::g_scale = scale;
+    window.on_refactor();
+    window.render(renderer);
+    window.on_poll_events();
+    ui::g_focused->emit_event();
+    if (prev_focused != ui::g_focused) prev_focused->emit_event();
 }
 
 void Game::send_inputs() {
@@ -181,21 +213,14 @@ void Game::send_inputs() {
         writer.write_uint8(kServerbound::kClientInput);
         //float x = input.keys_pressed.contains('D') - input.keys_pressed.contains('A');
         //float y = input.keys_pressed.contains('S') - input.keys_pressed.contains('W');
-        float x = input.mouse_x - renderer.width / 2;
-        float y = input.mouse_y - renderer.height / 2;
+        float x = (input.mouse_x - renderer.width / 2) / scale;
+        float y = (input.mouse_y - renderer.height / 2) / scale;
         writer.write_float(x);
         writer.write_float(y);
         uint8_t attack = input.keys_pressed.contains('\x20') || BIT_AT(input.mouse_buttons_state, 0);
         uint8_t defend = input.keys_pressed.contains('\x10') || BIT_AT(input.mouse_buttons_state, 1);
         writer.write_uint8(attack | (defend << 1));
         socket.send(writer.packet, writer.at - writer.packet);
-    }
-    else {
-        if (input.keys_pressed_this_tick.contains('Q')) {
-            //SPAWN
-            writer.write_uint8(kServerbound::kClientSpawn);
-            socket.send(writer.packet, writer.at - writer.packet);
-        }
     }
 }
 

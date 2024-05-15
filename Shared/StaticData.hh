@@ -6,7 +6,7 @@ static const uint32_t ARENA_WIDTH = 1500;
 static const uint32_t ARENA_HEIGHT = 1500;
 
 static const float SERVER_DT = 0.05;//(ms)
-static const float PLAYER_ACCELERATION = 30 * SERVER_DT;//(1/s^2)
+static const float PLAYER_ACCELERATION = 60 * SERVER_DT;//(1/s^2)
 static const float DEFAULT_FRICTION = 0.2;
 
 #define REAL_TIME(st) (SERVER_DT * (st))
@@ -39,7 +39,7 @@ enum kRarityId : uint8_t {
 };
 
 struct PetalData {
-    uint8_t id;
+    char const *name;
     uint8_t rarity;
     float health;
     float damage;
@@ -55,7 +55,7 @@ struct MobDrop {
 };
 
 struct MobData {
-    uint8_t id;
+    char const *name;
     uint8_t rarity;
     float health;
     float damage;

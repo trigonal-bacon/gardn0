@@ -116,7 +116,7 @@ static void _ent_on_delete(Simulation *simulation, Entity &ent) {
             drop.despawn_ticks = 0;
             if (count > 1) {
                 Vector v;
-                v.unit_normal(2 * M_PI * i / count).set_magnitude(SERVER_TIME(PLAYER_ACCELERATION) * 0.75);
+                v.unit_normal(2 * M_PI * i / count).set_magnitude(SERVER_TIME(PLAYER_ACCELERATION) * 0.4);
                 drop.acceleration = v;
             }
             simulation->spatial_hash.insert(drop);

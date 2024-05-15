@@ -13,6 +13,11 @@ EM_ASM({
 }, r->id);
 }
 
+void RenderContext::reset() {
+    amount = 0;
+    color_filter = 0;
+}
+
 RenderContext::~RenderContext() {
     renderer->context = *this;
 EM_ASM({
@@ -87,7 +92,7 @@ void Renderer::set_line_width(float v) {
 
 void Renderer::set_text_size(float v) {
     EM_ASM({
-    Module.ctxs[$0].lineWidth = $1 + "px Ubuntu";
+    Module.ctxs[$0].font = $1 + "px Ubuntu";
     }, id, v);
 }
 
@@ -106,6 +111,18 @@ void Renderer::round_line_cap() {
 void Renderer::round_line_join() {
     EM_ASM({
     Module.ctxs[$0].lineJoin = "round";
+    }, id);
+}
+
+void Renderer::center_text_align() {
+    EM_ASM({
+    Module.ctxs[$0].textAlign = "center";
+    }, id);
+}
+
+void Renderer::center_text_baseline() {
+    EM_ASM({
+    Module.ctxs[$0].textBaseline = "middle";
     }, id);
 }
 
@@ -199,12 +216,16 @@ EM_ASM({
 
 void Renderer::partial_arc(float x, float y, float r, float sa, float ea, uint8_t ccw) {
 EM_ASM({
-    Module.ctxs[$0].arc($1, $2, $3, $4, $5, $6);
+    Module.ctxs[$0].arc($1, $2, $3, $4, $5, !!$6);
 }, id, x, y, r, sa, ea, ccw);
 }
 
 void Renderer::arc(float x, float y, float r) {
     partial_arc(x, y, r, 0, 2 * M_PI, 0);
+}
+
+void Renderer::reverse_arc(float x, float y, float r) {
+    partial_arc(x, y, r, 0, 2 * M_PI, 1);
 }
 
 void Renderer::ellipse(float x, float y, float r1, float r2) {
@@ -259,4 +280,22 @@ void Renderer::clip() {
 EM_ASM({
     Module.ctxs[$0].clip();
 }, id);
+}
+
+void Renderer::fill_text(char const *text) {
+    EM_ASM({
+        Module.ctxs[$0].fillText(Module.TextDecoder.decode(HEAPU8.subarray($1, $1+$2)),0,0);
+    }, id, text, strlen(text));
+}
+
+void Renderer::stroke_text(char const *text) {
+    EM_ASM({
+        Module.ctxs[$0].strokeText(Module.TextDecoder.decode(HEAPU8.subarray($1, $1+$2)),0,0);
+    }, id, text, strlen(text));
+}
+
+float Renderer::get_text_size(char const *text) {
+    return EM_ASM_DOUBLE({
+        return Module.ctxs[$0].measureText(Module.TextDecoder.decode(HEAPU8.subarray($1, $1+$2)),0,0).width;
+    }, id, text, strlen(text));
 }

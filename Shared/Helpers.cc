@@ -41,7 +41,7 @@ EntityId::EntityId() {
 EntityId::EntityId(uint16_t id, uint16_t hash) : id(id), hash(hash) {
 }
 
-bool EntityId::null() {
+bool EntityId::null() const {
     return id == 0;
 }
 
@@ -62,3 +62,12 @@ bool operator<(const EntityId &a, const EntityId &b) {
 bool operator==(const EntityId &a, const EntityId &b) {
     return a.id == b.id && a.hash == b.hash;
 }
+
+LerpValue::LerpValue() : value(0), lerp_value(0) {}
+
+LerpValue::LerpValue(float v) : value(v), lerp_value(v) {}
+
+float LerpValue::operator=(float v) { value = v; return v; }
+void LerpValue::lerp_step(float v) { lerp_value = lerp(lerp_value, value, v); }
+
+LerpValue::operator float() const { return lerp_value; }

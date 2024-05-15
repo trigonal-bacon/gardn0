@@ -31,7 +31,7 @@ public:
     uint16_t hash = 0;
     EntityId();
     EntityId(uint16_t, uint16_t);
-    bool null();
+    bool null() const;
     void operator=(const EntityId &);
     void operator=(uint32_t);
 };
@@ -67,8 +67,19 @@ public:
     T &operator[](uint32_t at) { return values[at]; };
     void push(T val) { DEBUG_ONLY(assert(length < capacity); ) values[length++] = val; };
     void clear() { length = 0;}
-    int32_t index_of(T val) {
+    int32_t index_of(T val) const {
         for (uint32_t i = 0; i < length; ++i) if (values[i] == val) return i;
         return -1;
     };
+};
+
+class LerpValue {
+public:
+    float value = 0;
+    float lerp_value = 0;
+    LerpValue();
+    LerpValue(float);
+    void lerp_step(float);
+    float operator=(float);
+    operator float() const;
 };

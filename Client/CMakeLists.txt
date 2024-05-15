@@ -14,6 +14,12 @@ set(SRCS
     Render/RenderHealth.cc
     Render/RenderMob.cc
     Render/RenderPetal.cc
+    Ui/Button.cc
+    Ui/Container.cc
+    Ui/Element.cc
+    Ui/ExternDef.cc
+    Ui/Label.cc
+    Ui/VisualUtils.cc
     Game.cc
     Input.cc
     Main.cc

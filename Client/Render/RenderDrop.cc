@@ -27,5 +27,15 @@ void render_drop(Entity &ent, Renderer &ctx) {
     ctx.round_rect(-25, -25, 50, 50, 2);
     ctx.fill();
     ctx.stroke();
+    ctx.translate(0, -5);
     draw_static_petal(ent.drop_id, ctx);
+    ctx.set_text_size(12);
+    ctx.set_line_width(12 * 0.12);
+    ctx.set_fill(0xffffffff);
+    ctx.set_stroke(0xff222222);
+    ctx.translate(0, 20);
+    ctx.center_text_align();
+    ctx.center_text_baseline();
+    ctx.stroke_text(PETAL_DATA[ent.drop_id].name);
+    ctx.fill_text(PETAL_DATA[ent.drop_id].name);
 }

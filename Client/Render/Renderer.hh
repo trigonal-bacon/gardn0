@@ -11,6 +11,7 @@ public:
     uint32_t color_filter = 0xff000000;
     float amount = 0;
     RenderContext(Renderer *);
+    void reset();
     ~RenderContext();
 };
 
@@ -32,6 +33,8 @@ public:
     
     void round_line_join();
     void round_line_cap();
+    void center_text_align();
+    void center_text_baseline();
     void set_line_width(float);
     void set_text_size(float);
     void set_global_alpha(float);
@@ -50,6 +53,7 @@ public:
 
     void partial_arc(float, float, float, float, float, uint8_t);
     void arc(float, float, float);
+    void reverse_arc(float, float, float);
     void ellipse(float, float, float, float);
     void rect(float, float, float, float);
     void round_rect(float, float, float, float, float);
@@ -60,5 +64,8 @@ public:
     void stroke();
     void clip();
 
+    void fill_text(char const *);
+    void stroke_text(char const *);
+    float get_text_size(char const *);
     //text ops
 };
