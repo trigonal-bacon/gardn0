@@ -18,13 +18,13 @@ void render_drop(Entity &ent, Renderer &ctx) {
     uint8_t rarity = PETAL_DATA[ent.drop_id].rarity;
     ctx.set_fill(0x80000000);
     ctx.begin_path();
-    ctx.round_rect(-28, -28, 56, 56, 5);
+    ctx.round_rect(-28, -28, 56, 56, 2);
     ctx.fill();
     ctx.set_fill(RARITY_COLORS[rarity]);
     ctx.set_stroke(Renderer::HSV(RARITY_COLORS[rarity], 0.8));
     ctx.set_line_width(3);
     ctx.begin_path();
-    ctx.round_rect(-25, -25, 50, 50, 2);
+    ctx.round_rect(-25, -25, 50, 50, 1);
     ctx.fill();
     ctx.stroke();
     ctx.translate(0, -5);

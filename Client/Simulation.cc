@@ -49,6 +49,7 @@ void Simulation::tick_lerp(double dt) {
 }
 
 void Simulation::post_tick() {
+    /*
     for (uint32_t i = 0; i < pending_delete.length; ++i) {
         //guarantee entity exists
         assert(ent_exists(pending_delete[i]));
@@ -56,4 +57,10 @@ void Simulation::post_tick() {
         delete_ent(pending_delete[i]);
     }
     pending_delete.clear();
+    */
+   for (uint32_t i = 0; i < active_entities.length; ++i) {
+        assert(ent_exists(active_entities[i]));
+        Entity &ent = get_ent(active_entities[i]);
+        ent.reset_protocol_state();
+    }
 }

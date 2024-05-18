@@ -77,6 +77,8 @@ PERCOMPONENT
 #else
 
 void Entity::read(Reader *reader) {
+    prev_x = x;
+    prev_y = y;
     components = reader->read_uint32();
     while(1) {
         switch(reader->read_uint8()) {
@@ -87,6 +89,7 @@ void Entity::read(Reader *reader) {
             uint8_t index = reader->read_uint8(); \
             if (index == 255) break; \
             name[index] = reader->read_##type(); \
+            state_per_##name[index] = 1; \
         } \
         break; \
     }

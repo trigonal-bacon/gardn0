@@ -34,7 +34,7 @@ static void pickup_drop(Simulation *simulation, Entity &player, Entity &drop) {
         simulation->request_delete(drop.id);
         return;
     }
-    for (uint32_t i = camera.loadout_count; i < 16; ++i) {
+    for (uint32_t i = camera.loadout_count; i < camera.loadout_count + MAX_SLOT_COUNT; ++i) {
         if (camera.loadout_ids[i] != kNone) continue;
         camera.set_loadout_ids(i, drop.drop_id);
         drop.set_x(player.x);

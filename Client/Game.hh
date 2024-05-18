@@ -22,6 +22,8 @@ public:
     float ui_circle_large = 0;
     uint8_t in_game = 0;
     uint8_t simulation_ready = 0;
+    uint8_t cache_slot_count = 5;
+    uint8_t cache_loadout[2 * MAX_SLOT_COUNT] = {0};
     Game();
     uint8_t alive();
     void tick(double);

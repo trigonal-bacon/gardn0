@@ -29,10 +29,22 @@ void tick_petal(Simulation *simulation, Entity &petal, uint32_t rot_pos, uint32_
     petal.set_angle(fmod(petal.angle + REAL_TIME(2), M_PI * 2));
 }
 
-static void petal_behavior(Simulation *simulation, Entity &player) {
+static void player_behavior(Simulation *simulation, Entity &player) {
     //player guaranteed to be ALIVE
     assert(simulation->ent_exists(player.parent));
     Entity &camera = simulation->get_ent(player.parent);
+    camera.set_experience(player.score);
+    uint32_t prev_slot_count = camera.loadout_count;
+    uint32_t lvl = get_level_from_xp(player.score);
+    uint32_t curr_slot_count = lvl / 15 + 5;
+    if (curr_slot_count > MAX_SLOT_COUNT) curr_slot_count = MAX_SLOT_COUNT;
+    if (curr_slot_count > prev_slot_count) {
+        for (; prev_slot_count < curr_slot_count; ++prev_slot_count) {
+            camera.loadout[prev_slot_count].reset();
+            camera.loadout[prev_slot_count].id = camera.loadout_ids[prev_slot_count];
+        }
+        camera.set_loadout_count(curr_slot_count);
+    }
     uint32_t rotation_pos = 0;
     for (uint32_t i = 0; i < camera.loadout_count; ++i) {
         LoadoutSlot &slot = camera.loadout[i];
@@ -43,8 +55,8 @@ static void petal_behavior(Simulation *simulation, Entity &player) {
         uint32_t min = max;
         for (uint32_t j = 0; j < PETAL_DATA[slot.id].count; ++j) {
             LoadoutPetal &petal_slot = slot.petals[j];
-            if (petal_slot.reload < min) min = petal_slot.reload;
             if (!simulation->ent_alive(petal_slot.ent_id)) {
+                if (petal_slot.reload < min) min = petal_slot.reload;
                 if (++petal_slot.reload >= SERVER_TIME(PETAL_DATA[slot.id].reload)) {
                     Entity &petal = simulation->alloc_petal(slot.id);
                     petal.set_x(player.x);
@@ -74,7 +86,7 @@ static void petal_behavior(Simulation *simulation, Entity &player) {
 void tick_petal_behavior(Simulation *sim) {
     for (uint32_t i = 0; i < sim->active_entities.length; ++i) {
         Entity &ent = sim->get_ent(sim->active_entities[i]);
-        if (ent.has_component(kFlower) && !ent.pending_delete) petal_behavior(sim, ent);
+        if (ent.has_component(kFlower) && !ent.pending_delete) player_behavior(sim, ent);
         else if (ent.has_component(kPetal) && !sim->ent_alive(ent.parent)) sim->request_delete(ent.id);
     }
 }

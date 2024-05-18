@@ -14,6 +14,7 @@ namespace ui {
         float round_radius;
         VisualData();
         static VisualData ButtonBackground(uint32_t);
+        static VisualData PanelBackground(uint32_t);
     };
 
     Element *AddTheme(VisualData, Element *);

@@ -20,6 +20,7 @@ void Button::on_render(Renderer &ctx) {
     ctx.stroke();
     label->render(ctx);
 }
+
 void Button::on_event(uint8_t type) {
     if (type == kClick) onclick();
 }

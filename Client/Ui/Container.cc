@@ -23,6 +23,7 @@ void Container::on_poll_events() {
     Element::on_poll_events();
     if (g_focused != this) return;
     for (Element *elt : elements) {
+        if (!elt->should_render()) continue;
         elt->on_poll_events();
     }
 }
@@ -63,9 +64,9 @@ void HContainer::on_refactor() {
     for (Element *elt : elements) {
         elt->h_justify = -1;
         elt->on_refactor();
-        if (!elt->rendering) continue;
+        if (!elt->rendering || elt->detached) continue;
         Layout l = elt->get_layout();
-        elt->x = x;
+        elt->x = x + elt->pad_x;
         elt->y = -elt->v_justify * outer_pad;
         x += l.width;
         y = fmax(y, l.height);
@@ -84,10 +85,10 @@ void VContainer::on_refactor() {
     for (Element *elt : elements) {
         elt->v_justify = -1;
         elt->on_refactor();
-        if (!elt->rendering) continue;
+        if (!elt->rendering || elt->detached) continue;
         Layout l = elt->get_layout();
         elt->x = -elt->h_justify * outer_pad;
-        elt->y = y;
+        elt->y = y + elt->pad_y;
         x = fmax(x, l.width);
         y += l.height;
     }

@@ -63,7 +63,7 @@ Entity &Simulation::alloc_player(Entity &camera) {
 
 void Simulation::tick() {
     if (frand() < 0.01) {
-        Entity &mob = alloc_mob(kBabyAnt);
+        Entity &mob = alloc_mob(rand() % kNumMobs);
         mob.set_x(frand() * ARENA_WIDTH);
         mob.set_y(frand() * ARENA_HEIGHT);
     }
@@ -94,9 +94,9 @@ static void _ent_on_delete(Simulation *simulation, Entity &ent) {
     if (ent.team == NULL_ENTITY && ent.has_component(kMob)) {
         //spawn DROPS
         uint32_t count = 0;
-        uint8_t drops[4];
+        uint8_t drops[6];
         struct MobData &data = MOB_DATA[ent.mob_id];
-        for (uint32_t i = 0; i < 4; ++i) {
+        for (uint32_t i = 0; i < 6; ++i) {
             if (data.drops[i].id == 0) break;
             if (frand() < data.drops[i].chance) drops[count++] = data.drops[i].id;
         }
@@ -122,10 +122,47 @@ static void _ent_on_delete(Simulation *simulation, Entity &ent) {
             simulation->spatial_hash.insert(drop);
         }
     }
+    else if (ent.has_component(kFlower)) {
+        uint8_t petal_queue[10 + MAX_SLOT_COUNT * 2] = {0};
+        Entity &camera = simulation->get_ent(ent.parent);
+        for (uint32_t i = 0; i < camera.loadout_count + MAX_SLOT_COUNT; ++i) if (camera.loadout_ids[i] != kBasic && frand() > 0.05) petal_queue[i] = camera.loadout_ids[i];
+        for (uint32_t i = 0; i < 10; ++i) if (frand() > 0.05) camera.loadout_ids[camera.loadout_count + MAX_SLOT_COUNT + i] = camera.deleted_petals[i];
+        std::sort(&petal_queue[0], &petal_queue[camera.loadout_count + MAX_SLOT_COUNT + 10],
+        [](uint8_t a, uint8_t b){
+            return (PETAL_DATA[a].rarity + (a != kNone)) > (PETAL_DATA[b].rarity + (b != kNone));
+        });
+        uint32_t count = 0;
+        uint8_t drops[3];
+        for (uint32_t i = 0; i < 3; ++i) {
+            if (petal_queue[i] == kNone) break;
+            drops[count++] = petal_queue[i];
+        }
+        if (count == 0) return;
+        for (uint32_t i = 0; i < count; ++i) {
+            Entity &drop = simulation->alloc_ent();
+            drop.add_component(kPhysics);
+            drop.set_x(ent.x);
+            drop.set_y(ent.y);
+            drop.set_radius(0);
+            drop.set_angle(-M_PI);
+            drop.friction = 0.4;
+            drop.add_component(kRelations);
+            drop.set_team(NULL_ENTITY);
+            drop.add_component(kDrop);
+            drop.set_drop_id(drops[i]);
+            drop.despawn_ticks = 0;
+            if (count > 1) {
+                Vector v;
+                v.unit_normal(2 * M_PI * i / count).set_magnitude(SERVER_TIME(PLAYER_ACCELERATION) * 0.4);
+                drop.acceleration = v;
+            }
+            simulation->spatial_hash.insert(drop);
+        }
+        for (uint32_t i = 0; i < camera.loadout_count + MAX_SLOT_COUNT; ++i) camera.set_loadout_ids(i, petal_queue[i + count]);
+    }
 }
 
 void Simulation::post_tick() {
-    //reset state of all entities FIRST
     //delete all pending deletes or advance deletion tick by one
     for (uint32_t i = 0; i < active_entities.length; ++i) {
         assert(ent_exists(active_entities[i]));
@@ -140,6 +177,7 @@ void Simulation::post_tick() {
     //for (client of clients) client.send_update();
     for (Client *client: global_server.clients) update_client(client);
     //send_state & reset all remaining active entities
+    //reset state of all entities FIRST
     for (uint32_t i = 0; i < active_entities.length; ++i) {
         assert(ent_exists(active_entities[i]));
         Entity &ent = get_ent(active_entities[i]);

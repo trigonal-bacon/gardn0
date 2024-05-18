@@ -3,6 +3,7 @@
 #include <Shared/Binary.hh>
 #include <Shared/Helpers.hh>
 #include <Shared/Vector.hh>
+#include <Shared/StaticData.hh>
 
 #include <stdint.h>
 
@@ -61,8 +62,8 @@ _SINGLE(experience, float) \
 _SINGLE(fov, float) \
 _SINGLE(player, entid) \
 _SINGLE(loadout_count, uint8) \
-_MULTIPLE(loadout_ids, uint8, 16) \
-_MULTIPLE(loadout_reloads, uint8, 16)
+_MULTIPLE(loadout_ids, uint8, 2 * MAX_SLOT_COUNT) \
+_MULTIPLE(loadout_reloads, uint8, 2 * MAX_SLOT_COUNT)
 
 #define FIELDS_Flower \
 _SINGLE(face_flags, uint8) \
@@ -112,9 +113,11 @@ _SINGLE(damage, float, =0) \
 _SINGLE(despawn_ticks, uint32_t, =0) \
 _SINGLE(ai_state, uint8_t, =kMobAiState::kIdle) \
 _SINGLE(ai_ticks_to_next_action, uint32_t, =0) \
-_MULTIPLE(loadout, LoadoutSlot, 8, .reset()) \
+_MULTIPLE(loadout, LoadoutSlot, MAX_SLOT_COUNT, .reset()) \
 _SINGLE(target, EntityId, =NULL_ENTITY) \
-_SINGLE(immunity_ticks, uint32_t, =0)
+_SINGLE(immunity_ticks, uint32_t, =0) \
+_MULTIPLE(deleted_petals, uint8_t, 10, =kPetalId::kNone) \
+_SINGLE(bearing_angle, float, =0)
 #else
 #define PER_EXTRA_FIELD \
 _SINGLE(pending_delete, uint8_t, =0) \

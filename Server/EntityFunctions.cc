@@ -4,12 +4,19 @@
 #include <Shared/Entity.hh>
 #include <Shared/Helpers.hh>
 
+#include <algorithm>
+#include <iostream>
+
 void inflict_damage(Simulation *simulation, Entity &receiver, EntityId &dealer, float damage) {
     assert(receiver.has_component(kHealth));
     //if (receiver.pending_delete) return;
     float rh = fclamp(receiver.health - damage, 0, receiver.max_health);
     receiver.set_health(rh);
     receiver.set_damaged(1);
+    if (!simulation->ent_alive(receiver.target)) { 
+        if (simulation->ent_alive(simulation->get_ent(dealer).parent)) receiver.target = simulation->get_ent(dealer).parent;
+        else receiver.target = dealer; 
+    }
     if (rh == 0) {
         simulation->request_delete(receiver.id);
         //dead
@@ -27,7 +34,6 @@ void inflict_damage(Simulation *simulation, Entity &receiver, EntityId &dealer, 
         }
         return;
     }
-    if (!simulation->ent_alive(receiver.target)) receiver.target = dealer.id;
 }
 
 void inflict_heal(Simulation *simulation, Entity &receiver, float heal) {

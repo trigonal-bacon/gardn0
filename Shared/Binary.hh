@@ -10,7 +10,9 @@ enum kClientbound {
 
 enum kServerbound {
     kClientInput,
-    kClientSpawn
+    kClientSpawn,
+    kPetalSwap,
+    kPetalDelete
 };
 
 class Writer {

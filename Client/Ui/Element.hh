@@ -43,6 +43,7 @@ namespace ui {
         uint8_t focused = 0;
         uint8_t rendering = 1; //default to show
         uint8_t not_first = 0;
+        uint8_t detached = 0; //detached from container positioning process
         LerpValue render_animation;
         std::function<uint8_t(void)> should_render = [](){return 1;};
         std::function<void(Element *, Renderer &)> animate;
@@ -59,4 +60,11 @@ namespace ui {
         void emit_event();
         virtual void on_event(uint8_t);
     };
+
+    template<int hj, int vj>
+    Element *Justify(Element *s) {
+        s->h_justify = hj;
+        s->v_justify = vj;
+        return s;
+    }
 };

@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+static char level_text[4] = "1";
 Game *gardn = nullptr;
 
 Game::Game() {
@@ -33,7 +34,7 @@ Game::Game() {
                     ui::VisualData::ButtonBackground(0xfff34856),
                     ui::SetRenderCondition(
                     [&](){ return simulation_ready; },
-                        new ui::Button(120, 20, new ui::StaticLabel{{"Enter Game", 20}}, [&](){
+                        new ui::Button(120, 36, new ui::StaticLabel{{"Enter Game", 20}}, [&](){
                             if (!alive()) {
                                 uint8_t packet[16];
                                 Writer writer(static_cast<uint8_t *>(packet));
@@ -43,7 +44,37 @@ Game::Game() {
                             }
                         })
                     )
-                )
+                ),
+                new ui::StaticSpace(0,10),
+                new ui::HContainer{
+                    new ui::StaticLabel{{"You will spawn at level ", 14}},
+                    new ui::StaticLabel{{level_text, 14}},
+                    ui::SetRenderCondition(
+                        [&](){
+                            return cache_loadout[0] != kNone && cache_loadout[0] != kBasic;
+                        },
+                        new ui::StaticLabel{{" with", 14}}
+                    )                    
+                },
+                new ui::StaticSpace(0,5),
+                new ui::HContainer{
+                    new ui::TitleScreenLoadout(0),
+                    new ui::TitleScreenLoadout(1),
+                    new ui::TitleScreenLoadout(2),
+                    new ui::TitleScreenLoadout(3),
+                    new ui::TitleScreenLoadout(4),
+                    new ui::TitleScreenLoadout(5),
+                    new ui::TitleScreenLoadout(6),
+                    new ui::TitleScreenLoadout(7),
+                    new ui::TitleScreenLoadout(8),
+                    new ui::TitleScreenLoadout(9),
+                    new ui::TitleScreenLoadout(10),
+                    new ui::TitleScreenLoadout(11),
+                    new ui::TitleScreenLoadout(12),
+                    new ui::TitleScreenLoadout(13),
+                    new ui::TitleScreenLoadout(14),
+                    new ui::TitleScreenLoadout(15),
+                }
             }
         )
     );
@@ -52,9 +83,20 @@ Game::Game() {
             [&](){ return !alive() && in_game; },
             ui::AddTheme(
                 ui::VisualData::ButtonBackground(0xfff34856),
-                new ui::Button(120, 20, new ui::StaticLabel{{"Continue", 20}}, [&](){
+                new ui::Button(120, 36, new ui::StaticLabel{{"Continue", 20}}, [&](){
                     in_game = 0;
                 })
+            )
+        )
+    );
+    window.add_child(
+        ui::in_game_loadout_init()
+    );
+    window.add_child(
+        ui::Justify<-1,1>(
+            ui::SetRenderCondition(
+                [&](){ return alive(); },
+                new ui::LevelBar()
             )
         )
     );
@@ -77,7 +119,7 @@ void Game::tick(double time) {
     render_ui();
     
     if (socket.ready) send_inputs();
-    
+    simulation.post_tick();
     input.keys_pressed_this_tick.clear();
     input.mouse_buttons_pressed = input.mouse_buttons_released = 0;
     last_tick = curr_tick;
@@ -89,6 +131,8 @@ void Game::render_game() {
     RenderContext context(&renderer);
     assert(simulation.ent_exists(camera_id));
     Entity &camera = simulation.get_ent(camera_id);
+    cache_slot_count = camera.loadout_count;
+    sprintf(level_text, "%u", get_level_from_xp(camera.experience));
     renderer.translate(renderer.width / 2, renderer.height / 2);
     renderer.scale(scale * camera.lerp_fov);
     renderer.translate(-camera.lerp_camera_x, -camera.lerp_camera_y);
@@ -204,6 +248,7 @@ void Game::render_ui() {
     window.on_poll_events();
     ui::g_focused->emit_event();
     if (prev_focused != ui::g_focused) prev_focused->emit_event();
+    ui::loadout_poll_input();
 }
 
 void Game::send_inputs() {

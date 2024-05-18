@@ -20,7 +20,7 @@ void Element::render(Renderer &ctx) {
     else render_animation.lerp_step(1 - (pow(1 - 0.35, g_frame_dt * 60 / 1000))); //fix
     rendering = render_animation > 0.01;
     #ifdef DEBUG
-    {
+    if (0 && rendering) {
         RenderContext context(&ctx);
         ctx.set_stroke(0x80000000);
         ctx.set_line_width(1);

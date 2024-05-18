@@ -38,7 +38,8 @@ public:
 
 enum kMobAiState {
     kIdle,
-    kIdleMoving
+    kIdleMoving,
+    kAggro
 };
 
 bool operator<(const EntityId &, const EntityId &);

@@ -13,6 +13,14 @@ VisualData VisualData::ButtonBackground(uint32_t color) {
     return v;
 }
 
+VisualData VisualData::PanelBackground(uint32_t color) {
+    VisualData v;
+    v.fill = color;
+    v.line_width = 6;
+    v.round_radius = 3;
+    return v;
+}
+
 Element *ui::AddTheme(VisualData v, Element *t) {
     t->visuals = v;
     return t;

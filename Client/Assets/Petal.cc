@@ -10,6 +10,7 @@ void draw_static_petal_single(uint8_t id, Renderer &ctx) {
         case kPetalId::kBasic:
         case kPetalId::kFast:
         case kPetalId::kTwin:
+        case kPetalId::kTriplet:
             ctx.set_fill(0xffffffff);
             ctx.set_stroke(0xffcfcfcf);
             ctx.set_line_width(3);
