@@ -28,36 +28,42 @@ Game::Game() {
         ui::SetRenderCondition(
             [&](){ return !alive() && !in_game; },
             new ui::VContainer{
-                new ui::StaticLabel{{"Gardn.funny", 45}},
-                new ui::StaticSpace(0,10),
-                ui::AddTheme(
-                    ui::VisualData::ButtonBackground(0xfff34856),
-                    ui::SetRenderCondition(
-                    [&](){ return simulation_ready; },
-                        new ui::Button(120, 36, new ui::StaticLabel{{"Enter Game", 20}}, [&](){
-                            if (!alive()) {
-                                uint8_t packet[16];
-                                Writer writer(static_cast<uint8_t *>(packet));
-                                writer.write_uint8(kServerbound::kClientSpawn);
-                                socket.send(writer.packet, writer.at - writer.packet);
-                                in_game = 1;
-                            }
-                        })
-                    )
+                new ui::StaticLabel{{"Gardn.funny", 60}},
+                new ui::StaticSpace(0,40),
+                ui::SetRenderCondition(
+                    [&](){ return !simulation_ready; },
+                    new ui::StaticLabel{{"Loading...", 45}}
                 ),
-                new ui::StaticSpace(0,10),
-                new ui::HContainer{
-                    new ui::StaticLabel{{"You will spawn at level ", 14}},
-                    new ui::StaticLabel{{level_text, 14}},
-                    ui::SetRenderCondition(
-                        [&](){
-                            return cache_loadout[0] != kNone && cache_loadout[0] != kBasic;
-                        },
-                        new ui::StaticLabel{{" with", 14}}
-                    )                    
-                },
+                ui::SetRenderCondition(
+                    [&](){ return simulation_ready; },
+                    new ui::VContainer{
+                        ui::AddTheme(
+                            ui::VisualData::ButtonBackground(0xfff34856),
+                            new ui::Button(120, 36, new ui::StaticLabel{{"Enter Game", 20}}, [&](){
+                                if (!alive()) {
+                                    uint8_t packet[16];
+                                    Writer writer(static_cast<uint8_t *>(packet));
+                                    writer.write_uint8(kServerbound::kClientSpawn);
+                                    socket.send(writer.packet, writer.at - writer.packet);
+                                    in_game = 1;
+                                }
+                            })
+                        ),
+                        new ui::StaticSpace(0,15),
+                        new ui::HContainer{
+                            new ui::StaticLabel{{"You will spawn at level ", 16}},
+                            new ui::StaticLabel{{level_text, 16}},
+                            ui::SetRenderCondition(
+                                [&](){
+                                    return cache_loadout[0] != PetalId::kNone && cache_loadout[0] != PetalId::kBasic;
+                                },
+                                new ui::StaticLabel{{" with:", 16}}
+                            )                    
+                        }
+                    }
+                ),
                 new ui::StaticSpace(0,5),
-                new ui::HContainer{
+                (new ui::HContainer{
                     new ui::TitleScreenLoadout(0),
                     new ui::TitleScreenLoadout(1),
                     new ui::TitleScreenLoadout(2),
@@ -74,19 +80,25 @@ Game::Game() {
                     new ui::TitleScreenLoadout(13),
                     new ui::TitleScreenLoadout(14),
                     new ui::TitleScreenLoadout(15),
-                }
+                })->pad(0,10)
             }
         )
     );
     window.add_child(
         ui::SetRenderCondition(
             [&](){ return !alive() && in_game; },
-            ui::AddTheme(
-                ui::VisualData::ButtonBackground(0xfff34856),
-                new ui::Button(120, 36, new ui::StaticLabel{{"Continue", 20}}, [&](){
-                    in_game = 0;
-                })
-            )
+            new ui::VContainer{
+                new ui::StaticLabel{{"You Died", 40}},
+                new ui::StaticSpace(0,20),
+                new ui::DeathFlower(),
+                new ui::StaticSpace(0,20),
+                ui::AddTheme(
+                    ui::VisualData::ButtonBackground(0xfff34856),
+                    new ui::Button(120, 36, new ui::StaticLabel{{"Continue", 20}}, [&](){
+                        in_game = 0;
+                    })
+                )
+            }
         )
     );
     window.add_child(
@@ -132,7 +144,7 @@ void Game::render_game() {
     assert(simulation.ent_exists(camera_id));
     Entity &camera = simulation.get_ent(camera_id);
     cache_slot_count = camera.loadout_count;
-    for (uint32_t i = 0; i < cache_slot_count + MAX_SLOT_COUNT; ++i) cache_loadout[i] = camera.loadout_ids[i];
+    if (alive()) for (uint32_t i = 0; i < cache_slot_count + MAX_SLOT_COUNT; ++i) cache_loadout[i] = camera.loadout_ids[i];
     sprintf(level_text, "%u", get_level_from_xp(camera.experience));
     renderer.translate(renderer.width / 2, renderer.height / 2);
     renderer.scale(scale * camera.lerp_fov);

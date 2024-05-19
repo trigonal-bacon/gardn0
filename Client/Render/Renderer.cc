@@ -264,6 +264,12 @@ void Renderer::round_rect(float x, float y, float w, float h, float r) {
     qcurve_to(x, y, x + r, y);
 }
 
+void Renderer::close_path() {
+EM_ASM({
+    Module.ctxs[$0].closePath();
+}, id);
+}
+
 void Renderer::fill() {
 EM_ASM({
     Module.ctxs[$0].fill();

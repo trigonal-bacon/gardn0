@@ -17,6 +17,7 @@ void LabelText::render(Renderer &ctx) {
     ctx.set_line_width(font_size * 0.12);
     ctx.stroke_text(text);
     ctx.fill_text(text);
+    cache_size = ctx.get_text_size(text);
 }
 
 StaticLabel::StaticLabel(LabelText l) : text(std::move(l)) {
@@ -28,4 +29,5 @@ void StaticLabel::on_render(Renderer &ctx) {
     ctx.center_text_align();
     ctx.center_text_baseline();
     text.render(ctx);
+    width = text.cache_size;
 }

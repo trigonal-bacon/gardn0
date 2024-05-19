@@ -37,7 +37,7 @@ LoadoutSlot::LoadoutSlot() {
 }
 
 void LoadoutSlot::reset() {
-    id = kNone;
+    id = PetalId::kNone;
     for (uint32_t i = 0; i < 3; ++i) {
         petals[i].reload = 0;
         petals[i].ent_id = NULL_ENTITY;
@@ -60,4 +60,9 @@ AppliedPoison::AppliedPoison() : dealer(NULL_ENTITY), damage(0), ticks_left(0) {
 void AppliedPoison::reset() { 
     damage = 0;
     ticks_left = 0;
+}
+
+bool ai_state_is_passive(uint8_t state) {
+    if (state == kIdle || state == kIdleMoving) return true;
+    return false;
 }

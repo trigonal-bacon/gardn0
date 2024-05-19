@@ -20,7 +20,7 @@ void Simulation::tick_lerp(double dt) {
             LERP(ent.lerp_radius, ent.radius, amt);
             if (ent.deletion_tick > 0) LERP(ent.lerp_deletion_tick, 5, _amt2);
             Vector velocity(ent.x - ent.prev_x, ent.y - ent.prev_y);
-            float animation_advance = (dt / 500) * (2 + fclamp(velocity.magnitude(), 0, PLAYER_ACCELERATION / (1 - DEFAULT_FRICTION)) * (!ent.has_component(kDrop))); //drop doesn't use velocity
+            float animation_advance = (dt / 500) * (1.5 + 1.2 * fclamp(velocity.magnitude(), 0, PLAYER_ACCELERATION / (1 - DEFAULT_FRICTION)) * (!ent.has_component(kDrop))); //drop doesn't use velocity
             ent.animation_tick += animation_advance;
         }
         if (ent.has_component(kCamera)) {

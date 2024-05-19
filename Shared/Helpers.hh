@@ -64,3 +64,10 @@ public:
     float operator=(float);
     operator float() const;
 };
+
+class SeedGenerator {
+    uint32_t seed;
+public:
+    SeedGenerator(uint32_t);
+    float next();
+};

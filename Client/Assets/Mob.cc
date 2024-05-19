@@ -3,11 +3,14 @@
 #include <Shared/Helpers.hh>
 #include <Shared/StaticData.hh>
 
-#define SET_BASE_COLOR(color) { if (!friendly) base_color = color; }
-void draw_static_mob(uint8_t mob_id, Renderer &ctx, float animation_value, float radius, uint8_t friendly) {
+#include <cmath>
+
+#define SET_BASE_COLOR(color) { if (!BIT_AT(flags, 0)) base_color = color; }
+void draw_static_mob(uint8_t mob_id, Renderer &ctx, float _animation_value, float radius, uint8_t flags) {
+    float animation_value = sinf(_animation_value);
     uint32_t base_color = 0xffffe763;
     switch(mob_id) {
-        case kMobId::kBabyAnt:
+        case MobId::kBabyAnt:
             SET_BASE_COLOR(0xff555555);
             ctx.set_stroke(0xff292929);
             ctx.set_line_width(7);
@@ -25,7 +28,7 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float animation_value, float
             ctx.fill();
             ctx.stroke();
             break;
-        case kMobId::kWorkerAnt:
+        case MobId::kWorkerAnt:
             SET_BASE_COLOR(0xff555555);
             ctx.set_fill(base_color);
             ctx.set_stroke(Renderer::HSV(base_color, 0.8));
@@ -49,7 +52,7 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float animation_value, float
             ctx.fill();
             ctx.stroke();
             break;
-        case kMobId::kSoldierAnt:
+        case MobId::kSoldierAnt:
             SET_BASE_COLOR(0xff555555);
             ctx.set_fill(base_color);
             ctx.set_stroke(Renderer::HSV(base_color, 0.8));
@@ -92,7 +95,7 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float animation_value, float
             ctx.fill();
             ctx.stroke();
             break;
-        case kMobId::kBee:
+        case MobId::kBee:
             SET_BASE_COLOR(0xffffe763);
             ctx.set_fill(0xff333333);
             ctx.set_stroke(0xff292929);
@@ -143,7 +146,7 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float animation_value, float
             ctx.arc(40,15,5);
             ctx.fill();
             break;
-        case kMobId::kBeetle:
+        case MobId::kBeetle:
             SET_BASE_COLOR(0xff905db0);
             ctx.begin_path();
             ctx.set_fill(0xff333333);
@@ -216,12 +219,13 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float animation_value, float
             ctx.arc(17,12,5);
             ctx.fill();
             break;
-        case kMobId::kLadybug:
+        case MobId::kLadybug:
+            SET_BASE_COLOR(0xffeb4034);
             ctx.set_fill(0xff111111);
             ctx.begin_path();
             ctx.arc(15,0,18.5);
             ctx.fill();
-            ctx.set_fill(0xffeb4034);
+            ctx.set_fill(base_color);
             ctx.begin_path();
             ctx.move_to(24.760068893432617,16.939273834228516);
             ctx.qcurve_to(17.74359130859375,27.195226669311523,5.530136585235596,29.485883712768555);
@@ -248,7 +252,7 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float animation_value, float
                 ctx.arc(0.7487926483154297,-5.099580764770508,4.840342998504639);
                 ctx.fill();
             }
-            ctx.set_fill(0xffbe342a);
+            ctx.set_fill(Renderer::HSV(base_color, 0.8));
             ctx.begin_path();
             ctx.move_to(27.64874267578125,18.915523529052734);
             ctx.qcurve_to(19.813682556152344,30.36800765991211,6.175320625305176,32.925907135009766);
@@ -279,5 +283,168 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float animation_value, float
             ctx.qcurve_to(15.673511505126953,24.022449493408203,21.871395111083984,14.963025093078613);
             ctx.fill();
             break;
+        case MobId::kHornet:
+            SET_BASE_COLOR(0xffffe763);
+            ctx.set_fill(0xff333333);
+            ctx.set_stroke(0xff292929);
+            ctx.set_line_width(5);
+            ctx.round_line_cap();
+            ctx.round_line_join();
+            ctx.begin_path();
+            ctx.move_to(-25,-6);
+            ctx.line_to(-47,0);
+            ctx.line_to(-25,6);
+            ctx.fill();
+            ctx.stroke();
+            ctx.set_fill(base_color);
+            ctx.begin_path();
+            ctx.ellipse(0,0,30,20);
+            ctx.fill();
+            {
+                RenderContext context(&ctx);
+                ctx.clip();
+                ctx.set_fill(0xff333333);
+                ctx.fill_rect(-30,-20,10,40);
+                ctx.fill_rect(-10,-20,10,40);
+                ctx.fill_rect(10,-20,10,40);
+            }
+            ctx.set_stroke(Renderer::HSV(base_color, 0.8));
+            ctx.set_line_width(5);
+            ctx.begin_path();
+            ctx.ellipse(0,0,30,20);
+            ctx.stroke();
+            ctx.set_stroke(0xff333333);
+            ctx.set_line_width(3);
+            ctx.begin_path();
+            ctx.move_to(25, 5);
+            ctx.qcurve_to(40, 10, 50, 15);
+            ctx.qcurve_to(40, 5, 25, 5);
+            ctx.move_to(25, -5);
+            ctx.qcurve_to(40, -10, 50, -15);
+            ctx.qcurve_to(40, -5, 25, -5);
+            ctx.fill();
+            ctx.stroke();
+            break;
+        case MobId::kCentipede:
+            SET_BASE_COLOR(0xff8ac255);
+            ctx.set_fill(0xff333333);
+            ctx.begin_path();
+            ctx.arc(0,-30,15);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(0,30,15);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(0,0,35);
+            ctx.set_fill(base_color);
+            ctx.fill();
+            ctx.set_stroke(Renderer::HSV(base_color, 0.8));
+            ctx.set_line_width(7);
+            ctx.stroke();
+            if (!BIT_AT(flags, 1)) {
+                ctx.begin_path();
+                ctx.move_to(25,-10);
+                ctx.qcurve_to(45,-10,55,-30);
+                ctx.set_stroke(0xff333333);
+                ctx.set_line_width(3);
+                ctx.stroke();
+                ctx.begin_path();
+                ctx.arc(55,-30,5);
+                ctx.set_fill(0xff333333);
+                ctx.fill();
+                ctx.begin_path();
+                ctx.move_to(25,10);
+                ctx.qcurve_to(45,10,55,30);
+                ctx.stroke();
+                ctx.begin_path();
+                ctx.arc(55,30,5);
+                ctx.fill();
+            }
+            break;
+        case MobId::kEvilCentipede:
+            SET_BASE_COLOR(0xff905db0);
+            ctx.set_fill(0xff333333);
+            ctx.begin_path();
+            ctx.arc(0,-30,15);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(0,30,15);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(0,0,35);
+            ctx.set_fill(base_color);
+            ctx.fill();
+            ctx.set_stroke(Renderer::HSV(base_color, 0.8));
+            ctx.set_line_width(7);
+            ctx.stroke();
+            if (!BIT_AT(flags, 1)) {
+                ctx.begin_path();
+                ctx.move_to(25,-10);
+                ctx.qcurve_to(45,-10,55,-30);
+                ctx.set_stroke(0xff333333);
+                ctx.set_line_width(3);
+                ctx.stroke();
+                ctx.begin_path();
+                ctx.arc(55,-30,5);
+                ctx.set_fill(0xff333333);
+                ctx.fill();
+                ctx.begin_path();
+                ctx.move_to(25,10);
+                ctx.qcurve_to(45,10,55,30);
+                ctx.stroke();
+                ctx.begin_path();
+                ctx.arc(55,30,5);
+                ctx.fill();
+            }
+            break;
+        case MobId::kSpider:
+            ctx.set_stroke(0xff333333);
+            ctx.set_line_width(5);
+            ctx.round_line_cap();
+            ctx.begin_path();
+            #define draw_leg(angle) \
+            { \
+                float cos = cosf(angle) * 35; \
+                float sin = sinf(angle) * 35; \
+                ctx.move_to(0,0); \
+                ctx.qcurve_to(sin * 0.8, cos * 0.5, sin, cos); \
+            }
+            draw_leg(-M_PI + 0.9 + sinf(_animation_value) * 0.2)
+            draw_leg(-M_PI + 0.3 + cosf(_animation_value) * 0.2)
+            draw_leg(-M_PI - 0.3 + sinf(_animation_value) * 0.2)
+            draw_leg(-M_PI - 0.9 - cosf(_animation_value) * 0.2)
+            draw_leg(-0.9 - sinf(_animation_value) * 0.2)
+            draw_leg(-0.3 + cosf(_animation_value) * 0.2)
+            draw_leg(0.3 - sinf(_animation_value) * 0.2)
+            draw_leg(0.9 - cosf(_animation_value) * 0.2)
+            ctx.stroke();
+            ctx.begin_path();
+            ctx.arc(0,0,MOB_DATA[mob_id].radius);
+            ctx.set_fill(0xff4f412e);
+            ctx.fill();
+            ctx.set_stroke(0xff403525);
+            ctx.set_line_width(5);
+            ctx.stroke();
+            break;
+        case MobId::kBoulder:
+        case MobId::kRock: {
+            SET_BASE_COLOR(0xff777777);
+            SeedGenerator gen(radius * 284 + 476);
+            ctx.set_fill(base_color);
+            ctx.set_stroke(Renderer::HSV(base_color, 0.8));
+            ctx.set_line_width(5);
+            ctx.round_line_cap();
+            ctx.round_line_join();
+            ctx.begin_path();
+            ctx.move_to(radius + (gen.next() - 0.5) * 2,(gen.next() - 0.5) * 2);
+            for (uint32_t i = 1; i < 4 + radius / 10; ++i) {
+                float angle = 2 * M_PI * i / floor(4 + radius / 10);
+                ctx.line_to(cosf(angle) * radius + (gen.next() - 0.5) * 2, sinf(angle) * radius + (gen.next() - 0.5) * 2);
+            }
+            ctx.close_path();
+            ctx.fill();
+            ctx.stroke();
+            break;
+        }
     }
 }

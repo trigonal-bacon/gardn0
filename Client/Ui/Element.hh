@@ -38,19 +38,20 @@ namespace ui {
         float height = 0;
         float h_justify = 0;
         float v_justify = 0;
-        float pad_x = 0;
-        float pad_y = 0;
         uint8_t focused = 0;
         uint8_t rendering = 1; //default to show
         uint8_t not_first = 0;
         uint8_t detached = 0; //detached from container positioning process
+        uint8_t layout_invalid = 1;
         LerpValue render_animation;
+        Element *parent;
         std::function<uint8_t(void)> should_render = [](){return 1;};
         std::function<void(Element *, Renderer &)> animate;
         Element();
         Element(float, float);
 
         void render(Renderer &);
+        void refactor();
         virtual void on_render(Renderer &);
         virtual void on_render_skip();
         virtual void on_refactor();

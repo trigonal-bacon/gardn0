@@ -5,9 +5,13 @@
 enum kMobAiState {
     kIdle,
     kIdleMoving,
+    kIdleMoving2,
     kAggro,
-    kReturning
+    kReturning,
+    kFiring
 };
+
+bool ai_state_is_passive(uint8_t);
 
 class EntityId {
 public:
@@ -52,7 +56,7 @@ public:
 class LoadoutSlot {
 public:
     uint8_t id;
-    LoadoutPetal petals[3];
+    LoadoutPetal petals[5];
     LoadoutSlot();
     void reset();
 };

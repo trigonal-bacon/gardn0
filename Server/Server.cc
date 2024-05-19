@@ -77,9 +77,9 @@ void Server::run() {
                     camera.set_loadout_count(slots);
                     for (uint32_t i = 0; i < slots; ++i) {
                         camera.loadout[i].reset();
-                        camera.loadout[i].id = camera.loadout_ids[i] ? camera.loadout_ids[i] : kBasic;
+                        camera.loadout[i].id = camera.loadout_ids[i] ? camera.loadout_ids[i] : PetalId::kBasic;
                     }
-                    for (uint32_t i = slots + MAX_SLOT_COUNT; i < 2 * MAX_SLOT_COUNT; ++i) camera.set_loadout_ids(i, kNone);
+                    for (uint32_t i = slots + MAX_SLOT_COUNT; i < 2 * MAX_SLOT_COUNT; ++i) camera.set_loadout_ids(i, PetalId::kNone);
                     break;
                 }
                 case kServerbound::kPetalSwap: {
@@ -117,7 +117,7 @@ void Server::run() {
                     uint8_t pos = reader.read_uint8();
                     if (pos >= camera.loadout_count + MAX_SLOT_COUNT) break;
                     uint8_t id = camera.loadout_ids[pos];
-                    player.set_score(player.score + RARITY_SACRIFICE_XP[PETAL_DATA[id].rarity]);
+                    if (id != PetalId::kBasic) player.set_score(player.score + RARITY_SACRIFICE_XP[PETAL_DATA[id].rarity]);
                     if (pos < camera.loadout_count) {
                         for (uint32_t i = 0; i < 3; ++i) {
                             EntityId &entid = camera.loadout[pos].petals[i].ent_id;
@@ -125,9 +125,9 @@ void Server::run() {
                         }
                         camera.loadout[pos].reset();
                     }
-                    else camera.set_loadout_ids(pos, kNone);
+                    else camera.set_loadout_ids(pos, PetalId::kNone);
                     //add to the deletion queue
-                    if (id == kBasic) break;
+                    if (id == PetalId::kBasic) break;
                     for (uint32_t i = 0; i < 9; ++i) camera.deleted_petals[9 - i] = camera.deleted_petals[8 - i];
                     camera.deleted_petals[0] = id;
                     break;

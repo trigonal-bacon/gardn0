@@ -26,7 +26,7 @@ static void pickup_drop(Simulation *simulation, Entity &player, Entity &drop) {
     Entity &camera = simulation->get_ent(player.parent);
 
     for (uint32_t i = 0; i < camera.loadout_count; ++i) {
-        if (camera.loadout[i].id != kNone) continue;
+        if (camera.loadout[i].id != PetalId::kNone) continue;
         camera.loadout[i].reset();
         camera.loadout[i].id = drop.drop_id;
         drop.set_x(player.x);
@@ -35,7 +35,7 @@ static void pickup_drop(Simulation *simulation, Entity &player, Entity &drop) {
         return;
     }
     for (uint32_t i = camera.loadout_count; i < camera.loadout_count + MAX_SLOT_COUNT; ++i) {
-        if (camera.loadout_ids[i] != kNone) continue;
+        if (camera.loadout_ids[i] != PetalId::kNone) continue;
         camera.set_loadout_ids(i, drop.drop_id);
         drop.set_x(player.x);
         drop.set_y(player.y);
@@ -55,8 +55,8 @@ void on_collide(Simulation *simulation, Entity &ent1, Entity &ent2) {
         if (separation.x == 0 && separation.y == 0) separation.unit_normal(frand() * 2 * 3.14159);
         separation.normalize();
         float ratio = ent2.mass / (ent1.mass + ent2.mass);
-        ent1.collision_velocity.set(separation.x * (ratio * (dist + 10)), separation.y * (ratio * (dist + 10)));
-        ent2.collision_velocity.set(separation.x * ((ratio - 1) * (dist + 10)), separation.y * ((ratio - 1) * (dist + 10)));
+        ent1.collision_velocity.set(separation.x * (ratio * (dist)), separation.y * (ratio * (dist)));
+        ent2.collision_velocity.set(separation.x * ((ratio - 1) * (dist)), separation.y * ((ratio - 1) * (dist)));
     }
     if (ent1.has_component(kHealth) && ent2.has_component(kHealth) && !(ent1.team == ent2.team)) {
         inflict_damage(simulation, ent1, ent2.id, ent2.damage);

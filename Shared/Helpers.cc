@@ -43,3 +43,13 @@ float LerpValue::operator=(float v) { value = v; return v; }
 void LerpValue::lerp_step(float v) { lerp_value = lerp(lerp_value, value, v); }
 
 LerpValue::operator float() const { return lerp_value; }
+
+SeedGenerator::SeedGenerator(uint32_t s) : seed(s) {}
+
+float SeedGenerator::next() {
+    seed *= 167436543;
+    seed += 5832385;
+    seed *= (76372345 + seed);
+    seed += 937323;
+    return (seed % 65536) / 65536.0f;
+}

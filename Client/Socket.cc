@@ -18,7 +18,7 @@ Socket::Socket() {}
 void Socket::connect(char const *url) {
     EM_ASM({
         let string = UTF8ToString($1);
-        (function() {
+        function connect() {
             let socket = Module.socket = new WebSocket(string);
             socket.binaryType = "arraybuffer";
             socket.onopen = function()
@@ -30,13 +30,15 @@ void Socket::connect(char const *url) {
             {
                 console.log("Disconnected");
                 _on_message(2, a.code);
+                setTimeout(connect, 1000);
             };
             socket.onmessage = function(event)
             {
                 HEAPU8.set(new Uint8Array(event.data), $0);
                 _on_message(1, event.data.length);
             };
-        })();
+        }
+        setTimeout(connect, 1000);
     }, INCOMING_PACKET, url);
 }
 

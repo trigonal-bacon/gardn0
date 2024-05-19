@@ -40,9 +40,14 @@ void Element::on_render(Renderer &ctx) {}
 
 void Element::on_render_skip() {}
 
+void Element::refactor() {
+    layout_invalid = 0;
+    on_refactor();
+}
+
 void Element::on_refactor() {}
 
-Layout Element::get_layout() { return Layout(width + pad_x * 2, height + pad_y * 2); }
+Layout Element::get_layout() { return Layout(width, height); }
 
 void Element::emit_event() {
     if (g_focused != this) {

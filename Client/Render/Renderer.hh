@@ -60,6 +60,7 @@ public:
     void fill_rect(float, float, float, float);
     void stroke_rect(float, float, float, float);
 
+    void close_path();
     void fill();
     void stroke();
     void clip();

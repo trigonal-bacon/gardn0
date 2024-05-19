@@ -17,13 +17,14 @@ COMPONENT(Petal) \
 COMPONENT(Health) \
 COMPONENT(Mob) \
 COMPONENT(Drop) \
-COMPONENT(Score)
+COMPONENT(Score) \
+COMPONENT(Segmented)
 
 enum Components {
-#define COMPONENT(name) k##name,
-PERCOMPONENT
-#undef COMPONENT
-kComponentCount
+    #define COMPONENT(name) k##name,
+    PERCOMPONENT
+    #undef COMPONENT
+    kComponentCount
 };
 
 typedef EntityId entid;
@@ -73,16 +74,19 @@ _SINGLE(drop_id, uint8)
 #define FIELDS_Score \
 _SINGLE(score, float)
 
+#define FIELDS_Segmented \
+_SINGLE(is_head, uint8)
+
 #define PERFIELD \
-FIELDS_Physics FIELDS_Relations FIELDS_Camera FIELDS_Flower FIELDS_Petal FIELDS_Health FIELDS_Mob FIELDS_Drop FIELDS_Score
+FIELDS_Physics FIELDS_Relations FIELDS_Camera FIELDS_Flower FIELDS_Petal FIELDS_Health FIELDS_Mob FIELDS_Drop FIELDS_Score FIELDS_Segmented
 
 enum Fields {
-#define _SINGLE(name, type) k##name,
-#define _MULTIPLE(name, type, amt) k##name,
-PERFIELD
-#undef _SINGLE
-#undef _MULTIPLE
-kFieldCount
+    #define _SINGLE(name, type) k##name,
+    #define _MULTIPLE(name, type, amt) k##name,
+    PERFIELD
+    #undef _SINGLE
+    #undef _MULTIPLE
+    kFieldCount
 };
 
 #ifdef SERVER_SIDE
@@ -103,8 +107,9 @@ _SINGLE(ai_state, uint8_t, =kMobAiState::kIdle) \
 _SINGLE(ai_ticks_to_next_action, uint32_t, =0) \
 _MULTIPLE(loadout, LoadoutSlot, MAX_SLOT_COUNT, .reset()) \
 _SINGLE(target, EntityId, =NULL_ENTITY) \
+_SINGLE(head_node, EntityId, =NULL_ENTITY) \
 _SINGLE(immunity_ticks, uint32_t, =0) \
-_MULTIPLE(deleted_petals, uint8_t, 10, =kPetalId::kNone) \
+_MULTIPLE(deleted_petals, uint8_t, 10, =PetalId::kNone) \
 _SINGLE(bearing_angle, float, =0) \
 _SINGLE(effect_delay, uint32_t, =0) \
 _SINGLE(applied_poison, AppliedPoison, .reset()) \

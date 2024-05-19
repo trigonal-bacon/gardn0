@@ -10,9 +10,8 @@ TitleScreenLoadout::TitleScreenLoadout(uint8_t p) : Element(60,60), pos(p) {
         if (!gardn->simulation_ready) return false;
         //assume camera exists (it has to)
         render_id =gardn->simulation.get_ent(gardn->camera_id).loadout_ids[pos];
-        return render_id != kNone && render_id != kBasic;
+        return render_id != PetalId::kNone && render_id != PetalId::kBasic;
     };
-    pad_x = pad_y = 4;
 }
 
 void TitleScreenLoadout::on_render(Renderer &ctx) {

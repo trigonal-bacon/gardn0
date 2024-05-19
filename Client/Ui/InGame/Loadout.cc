@@ -27,7 +27,6 @@ LoadoutPetalBackground::LoadoutPetalBackground(uint8_t static_pos, uint8_t secon
         ui::VisualData::PanelBackground(0xffcfcfcf),
         this
     );
-    pad_x = pad_y = 10;
     petal_backgrounds[pos] = this;
 }
 
@@ -42,7 +41,6 @@ TrashPetalBackground::TrashPetalBackground() : LoadoutPetalBackground(MAX_SLOT_C
         ui::VisualData::PanelBackground(0xffcf8888),
         this
     );
-    pad_x = pad_y = 10;
     width = height = 60;
 }
 
@@ -59,16 +57,15 @@ LoadoutPetalButton::LoadoutPetalButton(uint8_t dynamic_pos) {
         if (!gardn->simulation_ready) return false;
         //assume camera exists (it has to)
         if (gardn->simulation.get_ent(gardn->camera_id).state_per_loadout_ids[this->pos]) this->prev_id = gardn->simulation.get_ent(gardn->camera_id).loadout_ids[this->pos];
-        return (this->prev_id != kNone);
+        return (this->prev_id != PetalId::kNone);
     };
     ui::AddTheme(
         ui::VisualData::PanelBackground(0xffcfcfcf),
         this
     );
-    pad_x = pad_y = 10;
     petal_buttons[pos] = this;
     detached = 1; //100% detached
-    prev_id = kNone;
+    prev_id = PetalId::kNone;
 
     animate = [](Element *_self, Renderer &ctx) {
         LoadoutPetalButton *self = dynamic_cast<LoadoutPetalButton *>(_self);
@@ -76,7 +73,7 @@ LoadoutPetalButton::LoadoutPetalButton(uint8_t dynamic_pos) {
         if (self != petal_button_focused) {
             uint8_t pos_to = self->get_static_loadout_pos();
             LoadoutPetalBackground *to = petal_backgrounds[pos_to];
-            if (self->snap_to == petal_backgrounds[2 * MAX_SLOT_COUNT] && self->prev_id == kNone) to = self->snap_to;
+            if (self->snap_to == petal_backgrounds[2 * MAX_SLOT_COUNT] && self->prev_id == PetalId::kNone) to = self->snap_to;
             float _d = 1 - (pow(1 - 0.35, g_frame_dt * 60 / 1000));
             LERP(self->x, to->screen_x, _d);
             LERP(self->y, to->screen_y, _d);
@@ -101,7 +98,7 @@ LoadoutPetalButton::LoadoutPetalButton(uint8_t dynamic_pos) {
                         writer.write_uint8(kServerbound::kPetalDelete);
                         writer.write_uint8(self->pos);
                         gardn->socket.send(writer.packet, writer.at - writer.packet);
-                        self->prev_id = kNone;
+                        self->prev_id = PetalId::kNone;
                         //self->snap_to = nullptr;
                     }
                     else {
@@ -116,8 +113,8 @@ LoadoutPetalButton::LoadoutPetalButton(uint8_t dynamic_pos) {
                         first->prev_id = id2;
                         second->render_id = second->prev_id;
                         first->render_id = first->prev_id;
-                        first->render_animation.lerp_value = first->render_animation.value = first->prev_id != kNone;
-                        second->render_animation.lerp_value = second->render_animation.value = second->prev_id != kNone;
+                        first->render_animation.lerp_value = first->render_animation.value = first->prev_id != PetalId::kNone;
+                        second->render_animation.lerp_value = second->render_animation.value = second->prev_id != PetalId::kNone;
                         second->x = first->x;
                         second->y = first->y;
                         second->width = first->width;
@@ -170,7 +167,7 @@ LoadoutPetalButton::LoadoutPetalButton(uint8_t dynamic_pos) {
                 }
             }
         }
-        if (self->prev_id != kNone) {
+        if (self->prev_id != PetalId::kNone) {
             //self->snap_to = nullptr;
             float rld = gardn->simulation.get_ent(gardn->camera_id).loadout_reloads[self->pos];
             if (rld < self->reload) self->reload.lerp_value = self->reload.value = rld;
@@ -195,7 +192,7 @@ uint8_t LoadoutPetalButton::get_static_loadout_pos() {
 }
 
 void LoadoutPetalButton::on_render(Renderer &ctx) {
-    if (render_id == kNone) return;
+    if (render_id == PetalId::kNone) return;
     screen_x = x;
     screen_y = y;
     RenderContext context(&ctx);
@@ -260,11 +257,11 @@ static double last_input = 0;
 static uint8_t focused = 0;
 static uint8_t button_index_at = 0;
 void ui::loadout_poll_input() {
-    if (petal_button_focused_by_keypad != nullptr && (petal_button_focused_by_keypad->pos < gardn->cache_slot_count || gardn->cache_loadout[petal_button_focused_by_keypad->pos] == kNone)) { petal_button_focused_by_keypad = nullptr; focused = 0; button_index_at = 0; }
+    if (petal_button_focused_by_keypad != nullptr && (petal_button_focused_by_keypad->pos < gardn->cache_slot_count || gardn->cache_loadout[petal_button_focused_by_keypad->pos] == PetalId::kNone)) { petal_button_focused_by_keypad = nullptr; focused = 0; button_index_at = 0; }
     if (gardn->input.keys_pressed_this_tick.contains('E')) {
         uint8_t *secondary_loadout = &gardn->simulation.get_ent(gardn->camera_id).loadout_ids[gardn->cache_slot_count];
         for (uint8_t offset = focused != 0; offset < MAX_SLOT_COUNT; ++offset) {
-            if (secondary_loadout[(offset + button_index_at) % MAX_SLOT_COUNT] == kNone) continue;
+            if (secondary_loadout[(offset + button_index_at) % MAX_SLOT_COUNT] == PetalId::kNone) continue;
             button_index_at = (offset + button_index_at) % MAX_SLOT_COUNT;
             focused = 1;
             last_input = gardn->curr_tick;
@@ -275,7 +272,7 @@ void ui::loadout_poll_input() {
     else if (gardn->input.keys_pressed_this_tick.contains('Q')) {
         uint8_t *secondary_loadout = &gardn->simulation.get_ent(gardn->camera_id).loadout_ids[gardn->cache_slot_count];
         for (uint8_t offset = focused != 0; offset < MAX_SLOT_COUNT; ++offset) {
-            if (secondary_loadout[(button_index_at - offset + MAX_SLOT_COUNT) % MAX_SLOT_COUNT] == kNone) continue;
+            if (secondary_loadout[(button_index_at - offset + MAX_SLOT_COUNT) % MAX_SLOT_COUNT] == PetalId::kNone) continue;
             button_index_at = (button_index_at - offset + MAX_SLOT_COUNT) % MAX_SLOT_COUNT;
             focused = 1;
             last_input = gardn->curr_tick;
@@ -298,8 +295,8 @@ void ui::loadout_poll_input() {
                 first->prev_id = id2;
                 second->render_id = second->prev_id;
                 first->render_id = first->prev_id;
-                first->render_animation.lerp_value = first->render_animation.value = first->prev_id != kNone;
-                second->render_animation.lerp_value = second->render_animation.value = second->prev_id != kNone;
+                first->render_animation.lerp_value = first->render_animation.value = first->prev_id != PetalId::kNone;
+                second->render_animation.lerp_value = second->render_animation.value = second->prev_id != PetalId::kNone;
                 float temp = second->x;
                 second->x = first->x;
                 first->x = temp;
@@ -326,11 +323,11 @@ void ui::loadout_poll_input() {
             writer.write_uint8(kServerbound::kPetalDelete);
             writer.write_uint8(petal_button_focused_by_keypad->pos);
             gardn->socket.send(writer.packet, writer.at - writer.packet);
-            petal_button_focused_by_keypad->prev_id = kNone;
+            petal_button_focused_by_keypad->prev_id = PetalId::kNone;
             petal_button_focused_by_keypad = nullptr;
             uint8_t *secondary_loadout = &gardn->simulation.get_ent(gardn->camera_id).loadout_ids[gardn->cache_slot_count];
             for (uint8_t offset = 1; offset < MAX_SLOT_COUNT; ++offset) {
-                if (secondary_loadout[(offset + button_index_at) % MAX_SLOT_COUNT] == kNone) continue;
+                if (secondary_loadout[(offset + button_index_at) % MAX_SLOT_COUNT] == PetalId::kNone) continue;
                 button_index_at = (offset + button_index_at) % MAX_SLOT_COUNT;
                 focused = 1;
                 last_input = gardn->curr_tick;
@@ -346,8 +343,8 @@ Element *ui::in_game_loadout_init() {
     return ui::SetRenderCondition(
         [](){ return gardn->simulation_ready && gardn->alive(); },
         ui::Justify<0, 1>(
-            new ui::VContainer{
-                new ui::HContainer{
+            (new ui::VContainer{
+                (new ui::HContainer{
                     new ui::LoadoutPetalBackground(0, 0),
                     new ui::LoadoutPetalBackground(1, 0),
                     new ui::LoadoutPetalBackground(2, 0),
@@ -356,8 +353,8 @@ Element *ui::in_game_loadout_init() {
                     new ui::LoadoutPetalBackground(5, 0),
                     new ui::LoadoutPetalBackground(6, 0),
                     new ui::LoadoutPetalBackground(7, 0),
-                },
-                new ui::HContainer{
+                })->pad(0,10),
+                (new ui::HContainer{
                     new ui::LoadoutPetalBackground(0, 1),
                     new ui::LoadoutPetalBackground(1, 1),
                     new ui::LoadoutPetalBackground(2, 1),
@@ -367,7 +364,7 @@ Element *ui::in_game_loadout_init() {
                     new ui::LoadoutPetalBackground(6, 1),
                     new ui::LoadoutPetalBackground(7, 1),
                     new ui::TrashPetalBackground(),
-                },
+                })->pad(0,10),
                 new ui::LoadoutPetalButton(0),
                 new ui::LoadoutPetalButton(1),
                 new ui::LoadoutPetalButton(2),
@@ -385,7 +382,7 @@ Element *ui::in_game_loadout_init() {
                 new ui::LoadoutPetalButton(14),
                 new ui::LoadoutPetalButton(15),
                 new ui::LoadoutPetalStandIn()
-            }
+            })->pad(0,10)
         )
     );
 }

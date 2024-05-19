@@ -5,6 +5,7 @@ include_directories(..)
 
 set(SOURCES
     Process/Ai.cc
+    Process/Centipede.cc
     Process/Collision.cc
     Process/Drop.cc
     Process/Health.cc

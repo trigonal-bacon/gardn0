@@ -7,6 +7,7 @@ using namespace ui;
 Container::Container(std::initializer_list<Element *> elts) : Element(), elements(elts) {}
 
 void Container::add_child(Element *elt) {
+    elt->parent = this;
     elements.push_back(elt);
 }
 
@@ -26,6 +27,12 @@ void Container::on_poll_events() {
         if (!elt->should_render()) continue;
         elt->on_poll_events();
     }
+}
+
+Element *Container::pad(float o, float i) {
+    outer_pad = o;
+    inner_pad = i;
+    return this;
 }
 
 Window::Window() : Container({}) {}
@@ -66,12 +73,12 @@ void HContainer::on_refactor() {
         elt->on_refactor();
         if (!elt->rendering || elt->detached) continue;
         Layout l = elt->get_layout();
-        elt->x = x + elt->pad_x;
+        elt->x = x;
         elt->y = -elt->v_justify * outer_pad;
-        x += l.width;
+        x += l.width + inner_pad;
         y = fmax(y, l.height);
     }
-    x += outer_pad;
+    x += outer_pad - inner_pad;
     y += 2 * outer_pad;
     width = x;
     height = y;
@@ -88,12 +95,12 @@ void VContainer::on_refactor() {
         if (!elt->rendering || elt->detached) continue;
         Layout l = elt->get_layout();
         elt->x = -elt->h_justify * outer_pad;
-        elt->y = y + elt->pad_y;
+        elt->y = y;
         x = fmax(x, l.width);
-        y += l.height;
+        y += l.height + inner_pad;
     }
     x += 2 * outer_pad;
-    y += outer_pad;
+    y += outer_pad - inner_pad;
     width = x;
     height = y;
 }

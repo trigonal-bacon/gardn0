@@ -9,9 +9,12 @@ namespace ui {
     class Container : public Element {
     public:
         std::vector<Element *> elements;
+        float outer_pad = 0;
+        float inner_pad = 0;
         Container(std::initializer_list<Element *>);
 
         void add_child(Element *);
+        Element *pad(float, float);
 
         virtual void on_render(Renderer &) override;
 
@@ -29,14 +32,12 @@ namespace ui {
 
     class HContainer : public Container {
     public:
-        float outer_pad = 0;
         HContainer(std::initializer_list<Element *>);
         virtual void on_refactor() override;
     };
 
     class VContainer : public Container {
     public:
-        float outer_pad = 0;
         VContainer(std::initializer_list<Element *>);
         virtual void on_refactor() override;
     };

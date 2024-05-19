@@ -4,11 +4,12 @@
 #include <Server/Client.hh>
 #include <Server/Process/Process.hh>
 
+#include <cmath>
 #include <iostream>
 #include <set>
 
-Entity &Simulation::alloc_mob(uint8_t mob_id) {
-    Entity &mob = alloc_ent();
+Entity &_alloc_mob(Simulation *sim, uint8_t mob_id) {
+    Entity &mob = sim->alloc_ent();
     mob.add_component(kPhysics);
     mob.set_angle(frand() * 2 * M_PI);
     mob.set_radius(MOB_DATA[mob_id].radius);
@@ -23,7 +24,27 @@ Entity &Simulation::alloc_mob(uint8_t mob_id) {
     mob.set_mob_id(mob_id);
     mob.add_component(kScore);
     mob.set_score(MOB_DATA[mob_id].xp * 2); //double since killing = half
+    if (mob_id == MobId::kRock) mob.set_radius(15 + frand() * 25);
+    else if (mob_id == MobId::kRock) mob.set_radius(30 + frand() * 40);
     return mob;
+}
+
+Entity &Simulation::alloc_mob(uint8_t mob_id) {
+    if (mob_id != MobId::kCentipede && mob_id != MobId::kEvilCentipede) return _alloc_mob(this, mob_id);
+    Entity *head = &_alloc_mob(this, mob_id);
+    head->add_component(kSegmented);
+    Entity &ret = *head;
+    ret.set_is_head(1);
+    for (uint32_t i = 0; i < 9; ++i) {
+        Entity *segment = &_alloc_mob(this, mob_id);
+        segment->add_component(kSegmented);
+        segment->head_node = head->id;
+        segment->set_angle(head->angle + frand() * 0.1 - 0.05);
+        segment->set_x(head->x - (head->radius + segment->radius) * cosf(segment->angle));
+        segment->set_y(head->y - (head->radius + segment->radius) * sinf(segment->angle));
+        head = segment;
+    }
+    return ret;
 }
 
 Entity &Simulation::alloc_petal(uint8_t petal_id) {
@@ -40,7 +61,8 @@ Entity &Simulation::alloc_petal(uint8_t petal_id) {
     petal.set_health(PETAL_DATA[petal_id].health);
     petal.damage = PETAL_DATA[petal_id].damage;
     petal.effect_delay = 0;
-    if (petal_id == kIris) petal.poison.define(REAL_TIME(10), SERVER_TIME(6));
+    if (petal_id == PetalId::kIris) petal.poison.define(REAL_TIME(10), SERVER_TIME(6));
+    if (petal_id == PetalId::kGrapes) petal.poison.define(REAL_TIME(8), SERVER_TIME(1));
     return petal;
 }
 
@@ -65,14 +87,14 @@ Entity &Simulation::alloc_player(Entity &camera) {
 
 void Simulation::tick() {
     if (frand() < 0.01) {
-        Entity &mob = alloc_mob(rand() % kNumMobs);
+        Entity &mob = alloc_mob(MobId::kBoulder);
         mob.set_x(frand() * ARENA_WIDTH);
         mob.set_y(frand() * ARENA_HEIGHT);
     }
     pre_tick();
     for (uint32_t i = 0; i < active_entities.length; ++i) {
         Entity &ent = get_ent(active_entities[i]);
-        ent.damaged = 0; //very ugly but whatever, will make component vectors later
+        ent.set_damaged(0); //very ugly but whatever, will make component vectors later
         if (ent.has_component(kPhysics)) spatial_hash.insert(ent);
     }
     spatial_hash.collide();
@@ -84,6 +106,7 @@ void Simulation::tick() {
     for (uint32_t i = 0; i < active_entities.length; ++i) {
         Entity &ent = get_ent(active_entities[i]);
         if (ent.pending_delete) continue;
+        if (ent.has_component(kSegmented)) tick_centipede_behavior(this, ent);
         if (ent.has_component(kDrop)) tick_drop_behavior(this, ent);
         if (ent.has_component(kPhysics)) tick_entity_motion(this, ent);
         if (ent.has_component(kHealth)) tick_health_behavior(this, ent);
@@ -126,16 +149,16 @@ static void _ent_on_delete(Simulation *simulation, Entity &ent) {
     else if (ent.has_component(kFlower)) {
         uint8_t petal_queue[10 + MAX_SLOT_COUNT * 2] = {0};
         Entity &camera = simulation->get_ent(ent.parent);
-        for (uint32_t i = 0; i < camera.loadout_count + MAX_SLOT_COUNT; ++i) if (camera.loadout_ids[i] != kBasic && frand() > 0.05) petal_queue[i] = camera.loadout_ids[i];
+        for (uint32_t i = 0; i < camera.loadout_count + MAX_SLOT_COUNT; ++i) if (camera.loadout_ids[i] != PetalId::kBasic && frand() > 0.05) petal_queue[i] = camera.loadout_ids[i];
         for (uint32_t i = 0; i < 10; ++i) if (frand() > 0.05) camera.loadout_ids[camera.loadout_count + MAX_SLOT_COUNT + i] = camera.deleted_petals[i];
         std::sort(&petal_queue[0], &petal_queue[camera.loadout_count + MAX_SLOT_COUNT + 10],
         [](uint8_t a, uint8_t b){
-            return (PETAL_DATA[a].rarity + (a != kNone)) > (PETAL_DATA[b].rarity + (b != kNone));
+            return (PETAL_DATA[a].rarity + (a != PetalId::kNone)) > (PETAL_DATA[b].rarity + (b != PetalId::kNone));
         });
         uint32_t count = 0;
         uint8_t drops[3];
         for (uint32_t i = 0; i < 3; ++i) {
-            if (petal_queue[i] == kNone) break;
+            if (petal_queue[i] == PetalId::kNone) break;
             drops[count++] = petal_queue[i];
         }
         if (count == 0) return;

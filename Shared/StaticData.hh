@@ -2,8 +2,8 @@
 
 #include <stdint.h>
 
-const uint32_t ARENA_WIDTH = 1500;
-const uint32_t ARENA_HEIGHT = 1500;
+const uint32_t ARENA_WIDTH = 3000;
+const uint32_t ARENA_HEIGHT = 3000;
 
 const float SERVER_DT = 0.05;//(ms)
 const float PLAYER_ACCELERATION = 70 * SERVER_DT;//(1/s^2)
@@ -13,32 +13,49 @@ const uint32_t MAX_SLOT_COUNT = 8;
 #define REAL_TIME(st) (SERVER_DT * (st))
 #define SERVER_TIME(rt) ((rt) / SERVER_DT)
 
-enum kPetalId : uint8_t {
-    kNone,
-    kBasic,
-    kFast,
-    kTwin,
-    kStinger,
-    kLeaf,
-    kIris,
-    kWing,
-    kMissile,
-    kBubble,
-    kEgg,
-    kTriplet,
-    kTringer,
-    kBeetleEgg,
-    kNumPetals
+class PetalId {
+public:
+    enum : uint8_t {
+        kNone,
+        kBasic,
+        kFast,
+        kHeavy,
+        kTwin,
+        kStinger,
+        kLeaf,
+        kIris,
+        kWing,
+        kMissile,
+        kBubble,
+        kPeas,
+        kRock,
+        kGrapes,
+        kEgg,
+        kTriplet,
+        kHeaviest,
+        kTringer,
+        kBeetleEgg,
+        kNumPetals
+    };
 };
 
-enum kMobId : uint8_t {
-    kBabyAnt,
-    kWorkerAnt,
-    kSoldierAnt,
-    kBee,
-    kLadybug,
-    kBeetle,
-    kNumMobs
+class MobId {
+public:
+    enum : uint8_t {
+        kBabyAnt,
+        kWorkerAnt,
+        kSoldierAnt,
+        kBee,
+        kLadybug,
+        kBeetle,
+        kHornet,
+        kCentipede,
+        kEvilCentipede,
+        kSpider,
+        kRock,
+        kBoulder,
+        kNumMobs
+    };
 };
 
 enum kRarityId : uint8_t {
@@ -78,8 +95,8 @@ struct MobData {
     MobDrop drops[6];
 };
 
-extern struct PetalData PETAL_DATA[kPetalId::kNumPetals];
-extern struct MobData MOB_DATA[kMobId::kNumMobs];
+extern struct PetalData PETAL_DATA[PetalId::kNumPetals];
+extern struct MobData MOB_DATA[MobId::kNumMobs];
 
 extern uint32_t RARITY_COLORS[kRarityId::kNumRarities];
 extern float RARITY_SACRIFICE_XP[kRarityId::kNumRarities];
