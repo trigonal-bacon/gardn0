@@ -7,6 +7,7 @@ set(SOURCES
     Process/Ai.cc
     Process/Collision.cc
     Process/Drop.cc
+    Process/Health.cc
     Process/Motion.cc
     Process/PetalBehavior.cc
     Client.cc
@@ -17,6 +18,7 @@ set(SOURCES
     SpatialHash.cc
     ../Shared/Binary.cc
     ../Shared/Entity.cc
+    ../Shared/EntityDef.cc
     ../Shared/Helpers.cc
     ../Shared/Simulation.cc
     ../Shared/StaticData.cc

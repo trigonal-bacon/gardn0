@@ -35,34 +35,6 @@ double frand() {
     return std::rand() / (double) RAND_MAX;
 }
 
-EntityId::EntityId() {
-}
-
-EntityId::EntityId(uint16_t id, uint16_t hash) : id(id), hash(hash) {
-}
-
-bool EntityId::null() const {
-    return id == 0;
-}
-
-void EntityId::operator=(const EntityId &o) {
-    id = o.id;
-    hash = o.hash;
-}
-
-
-void EntityId::operator=(uint32_t v) {
-    id = hash = 0;
-}
-
-bool operator<(const EntityId &a, const EntityId &b) {
-    return (a.hash * 65536 + a.id) < (b.hash * 65536 + b.id);
-}
-
-bool operator==(const EntityId &a, const EntityId &b) {
-    return a.id == b.id && a.hash == b.hash;
-}
-
 LerpValue::LerpValue() : value(0), lerp_value(0) {}
 
 LerpValue::LerpValue(float v) : value(v), lerp_value(v) {}

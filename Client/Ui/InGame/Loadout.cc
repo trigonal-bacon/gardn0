@@ -50,13 +50,7 @@ void LoadoutPetalBackground::on_render(Renderer &ctx) {
     uint32_t color = visuals.fill;
     ctx.set_fill(Renderer::HSV(color, 0.8));
     ctx.scale(width / 60);
-    ctx.begin_path();
-    ctx.round_rect(-30, -30, 60, 60, 6);
-    ctx.fill();
-    ctx.set_fill(Renderer::HSV(color, 1.0));
-    ctx.begin_path();
-    ctx.round_rect(-25, -25, 50, 50, 2);
-    ctx.fill();
+    DRAW_LOADOUT_BG(color);
 }
 
 LoadoutPetalButton::LoadoutPetalButton(uint8_t dynamic_pos) {
@@ -212,15 +206,8 @@ void LoadoutPetalButton::on_render(Renderer &ctx) {
     ctx.rotate((float) angle);
     {
         uint32_t color = RARITY_COLORS[PETAL_DATA[render_id].rarity];
-        ctx.set_fill(Renderer::HSV(color, 0.8));
         ctx.scale(width / 60);
-        ctx.begin_path();
-        ctx.round_rect(-30, -30, 60, 60, 6);
-        ctx.fill();
-        ctx.set_fill(Renderer::HSV(color, 1.0));
-        ctx.begin_path();
-        ctx.round_rect(-25, -25, 50, 50, 2);
-        ctx.fill();
+        DRAW_LOADOUT_BG(color);
         if (pos >= gardn->cache_slot_count) {
 
         }
@@ -273,7 +260,7 @@ static double last_input = 0;
 static uint8_t focused = 0;
 static uint8_t button_index_at = 0;
 void ui::loadout_poll_input() {
-    if (petal_button_focused_by_keypad != nullptr && petal_button_focused_by_keypad->pos < gardn->cache_slot_count) { petal_button_focused_by_keypad = nullptr; focused = 0; button_index_at = 0; }
+    if (petal_button_focused_by_keypad != nullptr && (petal_button_focused_by_keypad->pos < gardn->cache_slot_count || gardn->cache_loadout[petal_button_focused_by_keypad->pos] == kNone)) { petal_button_focused_by_keypad = nullptr; focused = 0; button_index_at = 0; }
     if (gardn->input.keys_pressed_this_tick.contains('E')) {
         uint8_t *secondary_loadout = &gardn->simulation.get_ent(gardn->camera_id).loadout_ids[gardn->cache_slot_count];
         for (uint8_t offset = focused != 0; offset < MAX_SLOT_COUNT; ++offset) {
@@ -297,38 +284,40 @@ void ui::loadout_poll_input() {
         }
     }
     else {
-        for (uint8_t i = 0; i < gardn->cache_slot_count; ++i) {
-            if (!gardn->input.keys_pressed_this_tick.contains('1'+i)) continue;
-            LoadoutPetalButton *self = petal_button_focused_by_keypad;
-            uint8_t pos1 = self->pos;
-            uint8_t pos2 = i;
-            LoadoutPetalButton *first = petal_buttons[pos1];
-            LoadoutPetalButton *second = petal_buttons[pos2];
-            uint8_t id1 = first->prev_id;
-            uint8_t id2 = second->prev_id;
-            second->prev_id = id1;
-            first->prev_id = id2;
-            second->render_id = second->prev_id;
-            first->render_id = first->prev_id;
-            first->render_animation.lerp_value = first->render_animation.value = first->prev_id != kNone;
-            second->render_animation.lerp_value = second->render_animation.value = second->prev_id != kNone;
-            float temp = second->x;
-            second->x = first->x;
-            first->x = temp;
-            temp = second->y;
-            second->y = first->y;
-            first->y = temp;
-            second->width = first->width;
-            second->height = first->height;
-            uint8_t packet[16];
-            Writer writer(static_cast<uint8_t *>(packet));
-            writer.write_uint8(kServerbound::kPetalSwap);
-            writer.write_uint8(pos1);
-            writer.write_uint8(pos2);
-            gardn->socket.send(writer.packet, writer.at - writer.packet);
-            self->snap_to = nullptr;
-            last_input = gardn->curr_tick;
-            break;
+        if (petal_button_focused_by_keypad != nullptr) {
+            for (uint8_t i = 0; i < gardn->cache_slot_count; ++i) {
+                if (!gardn->input.keys_pressed_this_tick.contains('1'+i)) continue;
+                LoadoutPetalButton *self = petal_button_focused_by_keypad;
+                uint8_t pos1 = self->pos;
+                uint8_t pos2 = i;
+                LoadoutPetalButton *first = petal_buttons[pos1];
+                LoadoutPetalButton *second = petal_buttons[pos2];
+                uint8_t id1 = first->prev_id;
+                uint8_t id2 = second->prev_id;
+                second->prev_id = id1;
+                first->prev_id = id2;
+                second->render_id = second->prev_id;
+                first->render_id = first->prev_id;
+                first->render_animation.lerp_value = first->render_animation.value = first->prev_id != kNone;
+                second->render_animation.lerp_value = second->render_animation.value = second->prev_id != kNone;
+                float temp = second->x;
+                second->x = first->x;
+                first->x = temp;
+                temp = second->y;
+                second->y = first->y;
+                first->y = temp;
+                second->width = first->width;
+                second->height = first->height;
+                uint8_t packet[16];
+                Writer writer(static_cast<uint8_t *>(packet));
+                writer.write_uint8(kServerbound::kPetalSwap);
+                writer.write_uint8(pos1);
+                writer.write_uint8(pos2);
+                gardn->socket.send(writer.packet, writer.at - writer.packet);
+                self->snap_to = nullptr;
+                last_input = gardn->curr_tick;
+                break;
+            }
         }
         if (gardn->input.keys_pressed_this_tick.contains('T') && petal_button_focused_by_keypad != nullptr) {
             petal_button_focused_by_keypad->snap_to = petal_backgrounds[2 * MAX_SLOT_COUNT];

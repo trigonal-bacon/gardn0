@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Shared/EntityDef.hh>
 #include <Shared/Helpers.hh>
 #include <Shared/StaticData.hh>
 

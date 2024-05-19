@@ -30,6 +30,7 @@ set(SRCS
     Socket.cc
     ../Shared/Binary.cc
     ../Shared/Entity.cc
+    ../Shared/EntityDef.cc
     ../Shared/Helpers.cc
     ../Shared/Simulation.cc
     ../Shared/StaticData.cc

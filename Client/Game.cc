@@ -132,6 +132,7 @@ void Game::render_game() {
     assert(simulation.ent_exists(camera_id));
     Entity &camera = simulation.get_ent(camera_id);
     cache_slot_count = camera.loadout_count;
+    for (uint32_t i = 0; i < cache_slot_count + MAX_SLOT_COUNT; ++i) cache_loadout[i] = camera.loadout_ids[i];
     sprintf(level_text, "%u", get_level_from_xp(camera.experience));
     renderer.translate(renderer.width / 2, renderer.height / 2);
     renderer.scale(scale * camera.lerp_fov);
@@ -236,7 +237,7 @@ void Game::render_ui() {
             renderer.clip();
         }
         if (ui_circle_large < 1100) {
-            renderer.set_fill(0xff1e61a7);
+            renderer.set_fill(0xff1ea761);
             renderer.fill_rect(0,0,renderer.width,renderer.height);
         }
     }

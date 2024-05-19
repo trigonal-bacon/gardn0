@@ -39,6 +39,8 @@ Entity &Simulation::alloc_petal(uint8_t petal_id) {
     petal.set_max_health(PETAL_DATA[petal_id].health);
     petal.set_health(PETAL_DATA[petal_id].health);
     petal.damage = PETAL_DATA[petal_id].damage;
+    petal.effect_delay = 0;
+    if (petal_id == kIris) petal.poison.define(REAL_TIME(10), SERVER_TIME(6));
     return petal;
 }
 
@@ -81,11 +83,10 @@ void Simulation::tick() {
     }
     for (uint32_t i = 0; i < active_entities.length; ++i) {
         Entity &ent = get_ent(active_entities[i]);
-        if (ent.has_component(kDrop) && !ent.pending_delete) tick_drop_behavior(this, ent);
-    }
-    for (uint32_t i = 0; i < active_entities.length; ++i) {
-        Entity &ent = get_ent(active_entities[i]);
-        if (ent.has_component(kPhysics) && !ent.pending_delete) tick_entity_motion(this, ent);
+        if (ent.pending_delete) continue;
+        if (ent.has_component(kDrop)) tick_drop_behavior(this, ent);
+        if (ent.has_component(kPhysics)) tick_entity_motion(this, ent);
+        if (ent.has_component(kHealth)) tick_health_behavior(this, ent);
     }
     post_tick();
 }

@@ -2,13 +2,13 @@
 
 #include <stdint.h>
 
-static const uint32_t ARENA_WIDTH = 1500;
-static const uint32_t ARENA_HEIGHT = 1500;
+const uint32_t ARENA_WIDTH = 1500;
+const uint32_t ARENA_HEIGHT = 1500;
 
-static const float SERVER_DT = 0.05;//(ms)
-static const float PLAYER_ACCELERATION = 60 * SERVER_DT;//(1/s^2)
-static const float DEFAULT_FRICTION = 0.2;
-static const uint32_t MAX_SLOT_COUNT = 8;
+const float SERVER_DT = 0.05;//(ms)
+const float PLAYER_ACCELERATION = 70 * SERVER_DT;//(1/s^2)
+const float DEFAULT_FRICTION = 0.25;
+const uint32_t MAX_SLOT_COUNT = 8;
 
 #define REAL_TIME(st) (SERVER_DT * (st))
 #define SERVER_TIME(rt) ((rt) / SERVER_DT)
@@ -20,15 +20,24 @@ enum kPetalId : uint8_t {
     kTwin,
     kStinger,
     kLeaf,
+    kIris,
+    kWing,
+    kMissile,
+    kBubble,
+    kEgg,
     kTriplet,
     kTringer,
+    kBeetleEgg,
     kNumPetals
 };
 
 enum kMobId : uint8_t {
     kBabyAnt,
     kWorkerAnt,
+    kSoldierAnt,
     kBee,
+    kLadybug,
+    kBeetle,
     kNumMobs
 };
 
@@ -47,8 +56,9 @@ struct PetalData {
     uint8_t rarity;
     float health;
     float damage;
-    float reload; //in seconds
     float radius;
+    float reload; //in seconds
+    float secondary_reload; //stuff like eggs + missile
     uint8_t count;
     float clump_radius;
 };

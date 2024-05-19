@@ -68,6 +68,8 @@ void Server::run() {
                     std::cout << "client spawn\n";
                     if (client->alive()) break;
                     Entity &camera = global_server.simulation.get_ent(client->camera);
+                    camera.set_camera_x(frand() * ARENA_WIDTH);
+                    camera.set_camera_y(frand() * ARENA_HEIGHT);
                     Entity &player = global_server.simulation.alloc_player(camera);
                     player.set_score(camera.experience / 2);
                     uint32_t slots = 5 + get_level_from_xp(player.score) / 15;

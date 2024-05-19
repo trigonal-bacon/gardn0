@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Shared/Helpers.hh>
+#include <Shared/EntityDef.hh>
 
 #include <set>
 #include <stdint.h>

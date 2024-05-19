@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Shared/Binary.hh>
+#include <Shared/EntityDef.hh>
 #include <Shared/Helpers.hh>
 #include <Shared/Vector.hh>
 #include <Shared/StaticData.hh>
@@ -23,20 +24,6 @@ enum Components {
 PERCOMPONENT
 #undef COMPONENT
 kComponentCount
-};
-
-class LoadoutPetal {
-public:
-    uint32_t reload;
-    EntityId ent_id;
-};
-
-class LoadoutSlot {
-public:
-    uint8_t id;
-    LoadoutPetal petals[3];
-    LoadoutSlot();
-    void reset();
 };
 
 typedef EntityId entid;
@@ -102,6 +89,7 @@ kFieldCount
 #define PER_EXTRA_FIELD \
 _SINGLE(pending_delete, uint8_t, =0) \
 _SINGLE(input, uint8_t, =0) \
+_SINGLE(detached, uint8_t, =0) \
 _SINGLE(friction, float, =0) \
 _SINGLE(mass, float, =1) \
 _SINGLE(velocity, Vector, .set(0,0)) \
@@ -117,7 +105,10 @@ _MULTIPLE(loadout, LoadoutSlot, MAX_SLOT_COUNT, .reset()) \
 _SINGLE(target, EntityId, =NULL_ENTITY) \
 _SINGLE(immunity_ticks, uint32_t, =0) \
 _MULTIPLE(deleted_petals, uint8_t, 10, =kPetalId::kNone) \
-_SINGLE(bearing_angle, float, =0)
+_SINGLE(bearing_angle, float, =0) \
+_SINGLE(effect_delay, uint32_t, =0) \
+_SINGLE(applied_poison, AppliedPoison, .reset()) \
+_SINGLE(poison, PoisonDefinition, .define(0,0))
 #else
 #define PER_EXTRA_FIELD \
 _SINGLE(pending_delete, uint8_t, =0) \
@@ -140,8 +131,6 @@ _SINGLE(lerp_max_health, float, =0) \
 _SINGLE(animation_tick, float, =0) \
 _SINGLE(damage_flash, float, =0)
 #endif
-
-extern EntityId NULL_ENTITY;
 
 class Entity {
 public:

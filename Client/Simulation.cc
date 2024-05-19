@@ -8,8 +8,8 @@ void Simulation::tick() {
 }
 
 void Simulation::tick_lerp(double dt) {
-    double _amt = 1 - (pow(1 - 0.25, dt * 60 / 1000));
-    double _amt2 = 1 - (pow(1 - 0.12, dt * 60 / 1000));
+    double _amt = 1 - (pow(1 - 0.15, dt * 60 / 1000));
+    double _amt2 = 1 - (pow(1 - 0.25, dt * 60 / 1000));
     for (uint32_t i = 0; i < active_entities.length; ++i) {
         Entity &ent = get_ent(active_entities[i]);
         double amt = ent.touched ? _amt : 1;
@@ -38,11 +38,11 @@ void Simulation::tick_lerp(double dt) {
         if (ent.has_component(kHealth)) {
             LERP(ent.lerp_health, ent.health, amt);
             LERP(ent.lerp_max_health, ent.max_health, amt);
-            if (ent.damaged) {
+            if (ent.damaged && ent.damage_flash < 0.2) {
                 ent.damage_flash = 1;
                 ent.damaged = 0;
             }
-            else LERP(ent.damage_flash, 0, _amt);
+            else LERP(ent.damage_flash, 0, _amt2);
         }
         ent.touched = 1;
     }

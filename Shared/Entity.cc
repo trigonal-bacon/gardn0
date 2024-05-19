@@ -3,20 +3,6 @@
 #include <Shared/StaticData.hh>
 #include <iostream>
 
-EntityId NULL_ENTITY(0, 0);
-
-LoadoutSlot::LoadoutSlot() {
-    reset();
-}
-
-void LoadoutSlot::reset() {
-    id = kNone;
-    for (uint32_t i = 0; i < 3; ++i) {
-        petals[i].reload = 0;
-        petals[i].ent_id = NULL_ENTITY;
-    }
-}
-
 Entity::Entity() {
     init();
 }

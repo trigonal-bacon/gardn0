@@ -8,8 +8,10 @@ void render_flower(Entity &ent, Renderer &ctx) {
     ctx.set_global_alpha(1 - ent.lerp_deletion_tick * 0.2);
     ctx.scale(1 + 0.1 * ent.lerp_deletion_tick);
     ctx.add_color_filter(0xffac0000, ent.damage_flash);
-    ctx.set_stroke(0xffcfbb50);
-    ctx.set_fill(0xffffe763);
+    uint32_t base_color = 0xffffe763;
+    if (BIT_AT(ent.face_flags, 2)) base_color = 0xffce76db;
+    ctx.set_stroke(Renderer::HSV(base_color, 0.8));
+    ctx.set_fill(base_color);
     ctx.set_line_width(3);
     ctx.begin_path();
     ctx.arc(0, 0, ent.radius);
@@ -44,7 +46,7 @@ void render_flower(Entity &ent, Renderer &ctx) {
     {
         RenderContext context(&ctx);
         ctx.translate(0, -ent.lerp_mouth - 8);
-        ctx.set_fill(0xffffe763);
+        ctx.set_fill(base_color);
         ctx.begin_path();
         ctx.move_to(-12, 0);
         ctx.line_to(12, 0);

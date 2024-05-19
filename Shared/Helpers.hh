@@ -25,26 +25,6 @@
 #define DEBUG_ONLY(...)
 #endif
 
-class EntityId {
-public:
-    uint16_t id = 0;
-    uint16_t hash = 0;
-    EntityId();
-    EntityId(uint16_t, uint16_t);
-    bool null() const;
-    void operator=(const EntityId &);
-    void operator=(uint32_t);
-};
-
-enum kMobAiState {
-    kIdle,
-    kIdleMoving,
-    kAggro
-};
-
-bool operator<(const EntityId &, const EntityId &);
-bool operator==(const EntityId &, const EntityId &);
-
 constexpr uint32_t bit_count(uint32_t v) {return 32 - __builtin_clz(v - 1); };
 constexpr uint32_t bit_fill(uint32_t v) { return (1 << v) - 1; }; 
 constexpr uint32_t div_round_up(uint32_t a, uint32_t b) { return (a + b - 1) / b; }
