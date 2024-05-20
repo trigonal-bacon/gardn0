@@ -1,12 +1,15 @@
 #include <Client/Ui/Ui.hh>
 
 #include <cmath>
+#include <iostream>
 
 using namespace ui;
 
-Layout::Layout() : width(0), height(0) {}
+Layout::Layout() : width(0), height(0) {
+}
 
-Layout::Layout(float w, float h) : width(w), height(h) {}
+Layout::Layout(float w, float h) : width(w), height(h) {
+}
 
 Element::Element() : animate([](Element *self, Renderer &ctx){ ctx.scale(self->render_animation); }) {}
 
@@ -16,9 +19,12 @@ void Element::render(Renderer &ctx) {
     screen_x = ctx.context.transform_matrix[2];
     screen_y = ctx.context.transform_matrix[5];
     render_animation = should_render();
-    if (!not_first) render_animation.lerp_step(not_first = 1);
+    uint8_t prev_rendering = rendering;
+    if (!not_first) render_animation.lerp_step(not_first);
     else render_animation.lerp_step(1 - (pow(1 - 0.35, g_frame_dt * 60 / 1000))); //fix
     rendering = render_animation > 0.01;
+    if ((!not_first || rendering != prev_rendering) || layout_invalid) invalidate_layout();
+    not_first = 1;
     #ifdef DEBUG
     if (0 && rendering) {
         RenderContext context(&ctx);
@@ -41,11 +47,21 @@ void Element::on_render(Renderer &ctx) {}
 void Element::on_render_skip() {}
 
 void Element::refactor() {
+    if (!layout_invalid) return;
     layout_invalid = 0;
     on_refactor();
 }
 
 void Element::on_refactor() {}
+
+void Element::invalidate_layout() {
+    layout_invalid = 1;
+    Element *par = parent;
+    while (par != nullptr) {
+        par->layout_invalid = 1;
+        par = par->parent;
+    }
+}
 
 Layout Element::get_layout() { return Layout(width, height); }
 

@@ -2,9 +2,13 @@
 
 #include <Client/Ui/ExternDef.hh>
 
+#include <iostream>
+
 using namespace ui;
 
-Container::Container(std::initializer_list<Element *> elts) : Element(), elements(elts) {}
+Container::Container(std::initializer_list<Element *> elts) : Element() {
+    for (Element *elt : elts) { add_child(elt); std::cout << "hi" << elt << '\n'; }
+}
 
 void Container::add_child(Element *elt) {
     elt->parent = this;
@@ -38,7 +42,7 @@ Element *Container::pad(float o, float i) {
 Window::Window() : Container({}) {}
 
 void Window::on_refactor() {
-    for (Element *elt : elements) elt->on_refactor();
+    for (Element *elt : elements) elt->refactor();
 }
 
 void Window::render(Renderer &ctx) {
@@ -70,7 +74,7 @@ void HContainer::on_refactor() {
     float y = 0;
     for (Element *elt : elements) {
         elt->h_justify = -1;
-        elt->on_refactor();
+        elt->refactor();
         if (!elt->rendering || elt->detached) continue;
         Layout l = elt->get_layout();
         elt->x = x;
@@ -91,7 +95,7 @@ void VContainer::on_refactor() {
     float y = outer_pad;
     for (Element *elt : elements) {
         elt->v_justify = -1;
-        elt->on_refactor();
+        elt->refactor();
         if (!elt->rendering || elt->detached) continue;
         Layout l = elt->get_layout();
         elt->x = -elt->h_justify * outer_pad;

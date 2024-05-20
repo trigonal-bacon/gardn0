@@ -58,7 +58,7 @@ Game::Game() {
                                     return cache_loadout[0] != PetalId::kNone && cache_loadout[0] != PetalId::kBasic;
                                 },
                                 new ui::StaticLabel{{" with:", 16}}
-                            )                    
+                            )                
                         }
                     }
                 ),
@@ -256,7 +256,7 @@ void Game::render_ui() {
     ui::g_frame_dt = delta;
     ui::Element *prev_focused = ui::g_focused;
     ui::g_scale = scale;
-    window.on_refactor();
+    window.refactor();
     window.render(renderer);
     window.on_poll_events();
     ui::g_focused->emit_event();

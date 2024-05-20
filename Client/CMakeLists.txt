@@ -41,7 +41,7 @@ set(SRCS
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCLIENT_SIDE=1 -std=c++20")
 set(CMAKE_CXX_COMPILER "em++")
 if(DEBUG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1 -gdwarf-4")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math --closure=1")
 endif()

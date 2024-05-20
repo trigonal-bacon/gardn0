@@ -44,7 +44,7 @@ namespace ui {
         uint8_t detached = 0; //detached from container positioning process
         uint8_t layout_invalid = 1;
         LerpValue render_animation;
-        Element *parent;
+        Element *parent = nullptr;
         std::function<uint8_t(void)> should_render = [](){return 1;};
         std::function<void(Element *, Renderer &)> animate;
         Element();
@@ -52,6 +52,7 @@ namespace ui {
 
         void render(Renderer &);
         void refactor();
+        void invalidate_layout();
         virtual void on_render(Renderer &);
         virtual void on_render_skip();
         virtual void on_refactor();
