@@ -105,6 +105,11 @@ void VContainer::on_refactor() {
     }
     x += 2 * outer_pad;
     y += outer_pad - inner_pad;
-    width = x;
+    if (!immutable_length) width = x;
     height = y;
 }
+
+Element *VContainer::lock_length() {
+    immutable_length = 1;
+    return this;
+} 

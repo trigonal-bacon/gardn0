@@ -5,11 +5,9 @@
 
 using namespace ui;
 
-Layout::Layout() : width(0), height(0) {
-}
+Layout::Layout() : width(0), height(0) {}
 
-Layout::Layout(float w, float h) : width(w), height(h) {
-}
+Layout::Layout(float w, float h) : width(w), height(h) {}
 
 Element::Element() : animate([](Element *self, Renderer &ctx){ ctx.scale(self->render_animation); }) {}
 
@@ -93,4 +91,11 @@ void Element::on_poll_events() {
     else if (g_focused == this) {
         g_focused = g_window;
     }
+}
+
+Element *Element::set_dimensions(float w, float h) {
+    width = w;
+    height = h;
+    invalidate_layout();
+    return this;
 }

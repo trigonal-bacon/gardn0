@@ -25,7 +25,7 @@ struct PetalData PETAL_DATA[PetalId::kNumPetals] = {
 struct MobData MOB_DATA[MobId::kNumMobs] = {
     {"Baby Ant", kCommon, 10, 10, 14, 1, {{PetalId::kFast, 0.36},{PetalId::kTwin, 0.12},{PetalId::kLeaf, 0.09}}},
     {"Worker Ant", kCommon, 15, 10, 14, 2, {{PetalId::kFast, 0.48},{PetalId::kTwin, 0.16},{PetalId::kLeaf, 0.12}}},
-    {"Soldier Ant", kUnusual, 30, 10, 14, 6, {{PetalId::kFast, 0.48},{PetalId::kTwin, 0.16},{PetalId::kWing, 0.008},{PetalId::kTriplet,0.0004}}},
+    {"Soldier Ant", kUnusual, 30, 10, 14, 6, {{PetalId::kTwin, 0.16},{PetalId::kWing, 0.008},{PetalId::kTriplet,0.0004}}},
     {"Bee", kCommon, 15, 40, 25, 3, {{PetalId::kFast, 0.36},{PetalId::kStinger, 0.12},{PetalId::kTringer, 0.0002}}},
     {"Ladybug", kCommon, 25, 10, 30, 2, {{PetalId::kFast, 0.36},{PetalId::kStinger, 0.12},{PetalId::kBubble, 1.00}}},
     {"Beetle", kRare, 40, 30, 35, 9, {{PetalId::kIris, 0.48},{PetalId::kTriplet, 0.024}}},

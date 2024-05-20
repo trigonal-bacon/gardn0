@@ -38,7 +38,10 @@ namespace ui {
 
     class VContainer : public Container {
     public:
+        uint8_t immutable_length = 0;
         VContainer(std::initializer_list<Element *>);
         virtual void on_refactor() override;
+
+        Element *lock_length();
     };
 }

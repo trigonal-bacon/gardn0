@@ -51,7 +51,7 @@ _SINGLE(fov, float) \
 _SINGLE(player, entid) \
 _SINGLE(loadout_count, uint8) \
 _MULTIPLE(loadout_ids, uint8, 2 * MAX_SLOT_COUNT) \
-_MULTIPLE(loadout_reloads, uint8, 2 * MAX_SLOT_COUNT)
+_MULTIPLE(loadout_reloads, uint8, MAX_SLOT_COUNT)
 
 #define FIELDS_Flower \
 _SINGLE(face_flags, uint8) \

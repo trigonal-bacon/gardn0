@@ -50,6 +50,7 @@ namespace ui {
         Element();
         Element(float, float);
 
+        Element *set_dimensions(float, float);
         void render(Renderer &);
         void refactor();
         void invalidate_layout();
