@@ -7,7 +7,7 @@
 using namespace ui;
 
 Container::Container(std::initializer_list<Element *> elts) : Element() {
-    for (Element *elt : elts) { add_child(elt); std::cout << "hi" << elt << '\n'; }
+    for (Element *elt : elts) add_child(elt);
 }
 
 void Container::add_child(Element *elt) {
@@ -16,6 +16,15 @@ void Container::add_child(Element *elt) {
 }
 
 void Container::on_render(Renderer &ctx) {
+    if (visuals.fill != 0x00000000) {
+        ctx.set_fill(visuals.fill);
+        ctx.set_stroke(Renderer::HSV(visuals.fill, visuals.stroke_darken));
+        ctx.set_line_width(visuals.line_width);
+        ctx.begin_path();
+        ctx.round_rect(-width / 2, -height / 2, width, height, visuals.round_radius);
+        ctx.fill();
+        if (visuals.fill >= 0xff000000) ctx.stroke();
+    }
     for (Element *elt : elements) {
         RenderContext context(&ctx);
         ctx.translate(elt->x, elt->y);

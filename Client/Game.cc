@@ -4,7 +4,6 @@
 
 #include <iostream>
 
-static char level_text[4] = "1";
 Game *gardn = nullptr;
 
 Game::Game() {
@@ -50,37 +49,32 @@ Game::Game() {
                             })
                         ),
                         new ui::StaticSpace(0,15),
-                        new ui::HContainer{
-                            new ui::StaticLabel{{"You will spawn at level ", 16}},
-                            new ui::StaticLabel{{level_text, 16}},
-                            ui::SetRenderCondition(
-                                [&](){
-                                    return cache_loadout[0] != PetalId::kNone && cache_loadout[0] != PetalId::kBasic;
-                                },
-                                new ui::StaticLabel{{" with:", 16}}
-                            )                
-                        }
+                        new ui::DynamicLabel{[&](char *buf){
+                            if (!simulation_ready) return;
+                            Entity &camera = simulation.get_ent(camera_id);
+                            sprintf(buf, "You will spawn at level %u%s", get_level_from_xp(camera.experience), camera.loadout_ids[0] != PetalId::kNone ? " with:":"");
+                        }, 16},             
+                        new ui::StaticSpace(0,5),
+                        (new ui::HContainer{
+                            new ui::TitleScreenLoadout(0),
+                            new ui::TitleScreenLoadout(1),
+                            new ui::TitleScreenLoadout(2),
+                            new ui::TitleScreenLoadout(3),
+                            new ui::TitleScreenLoadout(4),
+                            new ui::TitleScreenLoadout(5),
+                            new ui::TitleScreenLoadout(6),
+                            new ui::TitleScreenLoadout(7),
+                            new ui::TitleScreenLoadout(8),
+                            new ui::TitleScreenLoadout(9),
+                            new ui::TitleScreenLoadout(10),
+                            new ui::TitleScreenLoadout(11),
+                            new ui::TitleScreenLoadout(12),
+                            new ui::TitleScreenLoadout(13),
+                            new ui::TitleScreenLoadout(14),
+                            new ui::TitleScreenLoadout(15),
+                        })->pad(0,10)
                     }
                 ),
-                new ui::StaticSpace(0,5),
-                (new ui::HContainer{
-                    new ui::TitleScreenLoadout(0),
-                    new ui::TitleScreenLoadout(1),
-                    new ui::TitleScreenLoadout(2),
-                    new ui::TitleScreenLoadout(3),
-                    new ui::TitleScreenLoadout(4),
-                    new ui::TitleScreenLoadout(5),
-                    new ui::TitleScreenLoadout(6),
-                    new ui::TitleScreenLoadout(7),
-                    new ui::TitleScreenLoadout(8),
-                    new ui::TitleScreenLoadout(9),
-                    new ui::TitleScreenLoadout(10),
-                    new ui::TitleScreenLoadout(11),
-                    new ui::TitleScreenLoadout(12),
-                    new ui::TitleScreenLoadout(13),
-                    new ui::TitleScreenLoadout(14),
-                    new ui::TitleScreenLoadout(15),
-                })->pad(0,10)
             }
         )
     );
@@ -109,6 +103,29 @@ Game::Game() {
             ui::SetRenderCondition(
                 [&](){ return alive(); },
                 new ui::LevelBar()
+            )
+        )
+    );
+    window.add_child(
+        ui::Justify<-1,1>(
+            ui::SetRenderCondition(
+                [&](){ return !in_game; },
+                (new ui::HContainer{
+                    ui::AddTheme(
+                        ui::VisualData::ButtonBackground(0xff5648a6),
+                        new ui::Button(120, 30, new ui::StaticLabel{{"Settings", 18}}, [&](){
+                            if (ui::panel_open == ui::PanelOpen::kSettings) ui::panel_open = ui::PanelOpen::kNone;
+                            else ui::panel_open = ui::PanelOpen::kSettings;
+                        })
+                    ),
+                    ui::AddTheme(
+                        ui::VisualData::ButtonBackground(0xff5648a6),
+                        new ui::Button(120, 30, new ui::StaticLabel{{"Mob Gallery", 18}}, [&](){
+                            if (ui::panel_open == ui::PanelOpen::kMobGallery) ui::panel_open = ui::PanelOpen::kNone;
+                            else ui::panel_open = ui::PanelOpen::kMobGallery;
+                        })
+                    )
+                })->pad(10,10)
             )
         )
     );
@@ -145,10 +162,15 @@ void Game::render_game() {
     Entity &camera = simulation.get_ent(camera_id);
     cache_slot_count = camera.loadout_count;
     if (alive()) for (uint32_t i = 0; i < cache_slot_count + MAX_SLOT_COUNT; ++i) cache_loadout[i] = camera.loadout_ids[i];
-    sprintf(level_text, "%u", get_level_from_xp(camera.experience));
     renderer.translate(renderer.width / 2, renderer.height / 2);
     renderer.scale(scale * camera.lerp_fov);
     renderer.translate(-camera.lerp_camera_x, -camera.lerp_camera_y);
+    if (alive()) {
+        Entity &player = simulation.get_ent(camera.player);
+        if (player.damage_flash > 0.1) {
+            renderer.translate(frand() * 5 - 2.5, frand() * 5 - 2.5);
+        }
+    }
     uint32_t alpha = (uint32_t)(camera.lerp_fov * 255 * 0.2) << 24;
     {
         RenderContext context(&renderer);

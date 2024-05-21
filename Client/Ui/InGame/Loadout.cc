@@ -69,7 +69,7 @@ LoadoutPetalButton::LoadoutPetalButton(uint8_t dynamic_pos) {
 
     animate = [](Element *_self, Renderer &ctx) {
         LoadoutPetalButton *self = dynamic_cast<LoadoutPetalButton *>(_self);
-        float _d = 1 - (pow(1 - 0.35, g_frame_dt * 60 / 1000));
+        float _d = 1 - (pow(1 - 0.2, g_frame_dt * 60 / 1000));
         if (self != petal_button_focused) {
             uint8_t pos_to = self->get_static_loadout_pos();
             LoadoutPetalBackground *to = petal_backgrounds[pos_to];

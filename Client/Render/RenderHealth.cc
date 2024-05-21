@@ -6,8 +6,8 @@
 
 void render_health(Entity &ent, Renderer &ctx) {
     if (ent.has_component(kPetal) || ent.has_component(kMob)) return;
-    if (ent.lerp_health / ent.max_health > 0.99) return;
-    ctx.set_global_alpha(1 - ent.lerp_deletion_tick * 0.2);
+    if (ent.healthbar_opacity < 0.01) return;
+    ctx.set_global_alpha((1 - ent.lerp_deletion_tick * 0.2) * ent.healthbar_opacity);
     ctx.scale(1 + 0.1 * ent.lerp_deletion_tick);
     ctx.translate(0, ent.radius * 1.2 + 10);
     ctx.round_line_cap();

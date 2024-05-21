@@ -10,7 +10,7 @@
 class Client;
 #endif
 
-static const uint32_t ENTITY_CAP = 1024;
+static const uint32_t ENTITY_CAP = 4096;
 
 class Simulation {
 public:
@@ -21,6 +21,7 @@ SERVER_ONLY(SpatialHash spatial_hash;)
     StaticArray<EntityId, ENTITY_CAP> active_entities;
     StaticArray<EntityId, ENTITY_CAP> pending_delete;
     Simulation();
+    void reset();
     Entity &alloc_ent();
     Entity &get_ent(EntityId &);
     void force_alloc_ent(EntityId &);

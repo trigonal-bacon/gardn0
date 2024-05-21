@@ -25,7 +25,8 @@ Entity &_alloc_mob(Simulation *sim, uint8_t mob_id) {
     mob.add_component(kScore);
     mob.set_score(MOB_DATA[mob_id].xp * 2); //double since killing = half
     if (mob_id == MobId::kRock) mob.set_radius(15 + frand() * 25);
-    else if (mob_id == MobId::kRock) mob.set_radius(30 + frand() * 40);
+    else if (mob_id == MobId::kBoulder) mob.set_radius(40 + frand() * 40);
+    else if (mob_id == MobId::kCactus) mob.set_radius(30 + frand() * 40);
     return mob;
 }
 
@@ -61,8 +62,7 @@ Entity &Simulation::alloc_petal(uint8_t petal_id) {
     petal.set_health(PETAL_DATA[petal_id].health);
     petal.damage = PETAL_DATA[petal_id].damage;
     petal.effect_delay = 0;
-    if (petal_id == PetalId::kIris) petal.poison.define(REAL_TIME(10), SERVER_TIME(6));
-    if (petal_id == PetalId::kGrapes) petal.poison.define(REAL_TIME(8), SERVER_TIME(1));
+    petal.poison.define(REAL_TIME(PETAL_DATA[petal_id].extras.poison_damage / PETAL_DATA[petal_id].extras.poison_time), SERVER_TIME(PETAL_DATA[petal_id].extras.poison_time));
     return petal;
 }
 
@@ -82,12 +82,13 @@ Entity &Simulation::alloc_player(Entity &camera) {
     player.set_health(100);
     player.set_max_health(100);
     player.damage = 25;
+    player.immunity_ticks = SERVER_TIME(2);
     return player;
 }
 
 void Simulation::tick() {
-    if (frand() < 0.01) {
-        Entity &mob = alloc_mob(MobId::kBoulder);
+    if (frand() < 0.00) {
+        Entity &mob = alloc_mob(rand() % MobId::kNumMobs);
         mob.set_x(frand() * ARENA_WIDTH);
         mob.set_y(frand() * ARENA_HEIGHT);
     }

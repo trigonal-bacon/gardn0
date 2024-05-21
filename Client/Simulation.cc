@@ -43,6 +43,7 @@ void Simulation::tick_lerp(double dt) {
                 ent.damaged = 0;
             }
             else LERP(ent.damage_flash, 0, _amt2);
+        LERP(ent.healthbar_opacity, ent.max_health > ent.health, amt);
         }
         ent.touched = 1;
     }

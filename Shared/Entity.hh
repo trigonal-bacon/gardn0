@@ -133,6 +133,7 @@ _SINGLE(lerp_eye_y, float, =0) \
 _SINGLE(lerp_mouth, float, =0) \
 _SINGLE(lerp_health, float, =0) \
 _SINGLE(lerp_max_health, float, =0) \
+_SINGLE(healthbar_opacity, float, =0) \
 _SINGLE(animation_tick, float, =0) \
 _SINGLE(damage_flash, float, =0)
 #endif

@@ -20,6 +20,7 @@ public:
         kBasic,
         kFast,
         kHeavy,
+        kRose,
         kTwin,
         kStinger,
         kLeaf,
@@ -27,13 +28,17 @@ public:
         kWing,
         kMissile,
         kBubble,
+        kAzalea,
         kPeas,
         kRock,
+        kCactus,
         kGrapes,
         kEgg,
         kTriplet,
         kHeaviest,
+        kEAzalea,
         kTringer,
+        kTricac,
         kBeetleEgg,
         kNumPetals
     };
@@ -54,6 +59,10 @@ public:
         kSpider,
         kRock,
         kBoulder,
+        kCactus,
+        kDarkLadybug,
+        kMassiveBeetle,
+        kMassiveLadybug,
         kNumMobs
     };
 };
@@ -68,6 +77,14 @@ enum kRarityId : uint8_t {
     kNumRarities
 };
 
+struct PetalDataExtras {
+    float secondary_reload = 0;
+    float clump_radius = 0;
+    float poison_damage = 0;
+    float poison_time = 0.01;
+    float heal = 0;
+};
+
 struct PetalData {
     char const *name;
     uint8_t rarity;
@@ -75,9 +92,8 @@ struct PetalData {
     float damage;
     float radius;
     float reload; //in seconds
-    float secondary_reload; //stuff like eggs + missile
     uint8_t count;
-    float clump_radius;
+    struct PetalDataExtras extras;
 };
 
 struct MobDrop {

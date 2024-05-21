@@ -4,7 +4,7 @@
 
 using namespace ui;
 
-VisualData::VisualData() : fill(0xff888888), stroke_darken(0.8), line_width(6), round_radius(6) {}
+VisualData::VisualData() : fill(0x00000000), stroke_darken(0.8), line_width(6), round_radius(2) {}
 
 VisualData VisualData::ButtonBackground(uint32_t color) {
     VisualData v;
@@ -17,7 +17,7 @@ VisualData VisualData::PanelBackground(uint32_t color) {
     VisualData v;
     v.fill = color;
     v.line_width = 6;
-    v.round_radius = 3;
+    v.round_radius = 2;
     return v;
 }
 

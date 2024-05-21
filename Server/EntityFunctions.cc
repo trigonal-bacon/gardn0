@@ -59,6 +59,7 @@ EntityId find_nearest_enemy(Simulation *simulation, Entity &entity, float radius
     float min_dist = radius;
     simulation->spatial_hash.query(entity.x, entity.y, radius, radius, [&](Simulation *sim, Entity &ent){
         if (ent.team == entity.team) return;
+        if (ent.immunity_ticks > 0) return;
         if (!ent.has_component(kMob) && !ent.has_component(kFlower)) return;
         float dist = Vector(ent.x-entity.x,ent.y-entity.y).magnitude();
         if (dist < min_dist) { min_dist = dist; ret = ent.id; }

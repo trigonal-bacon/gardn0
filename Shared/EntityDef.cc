@@ -63,6 +63,6 @@ void AppliedPoison::reset() {
 }
 
 bool ai_state_is_passive(uint8_t state) {
-    if (state == kIdle || state == kIdleMoving) return true;
+    if (state == kIdle || state == kIdleMoving || state == kIdleMoving2 || state == kReturning) return true;
     return false;
 }

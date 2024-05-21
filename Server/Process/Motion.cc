@@ -8,6 +8,16 @@
 void tick_entity_motion(Simulation *sim, Entity &ent) {
     ent.velocity *= 1 - ent.friction;
     ent.velocity += ent.acceleration;
+    if (ent.collision_velocity.x != 0 || ent.collision_velocity.y != 0) {
+        Vector normalize_colvel{ent.collision_velocity.x, ent.collision_velocity.y};
+        normalize_colvel.normalize();
+        float pushback_amt = ent.velocity.x * normalize_colvel.x + ent.velocity.y * normalize_colvel.y;
+        if (pushback_amt < 0) {
+            normalize_colvel.set_magnitude(pushback_amt);
+            ent.velocity.x -= normalize_colvel.x;
+            ent.velocity.y -= normalize_colvel.y;
+        }
+    }
     ent.set_x(ent.x + ent.velocity.x + ent.collision_velocity.x);
     ent.set_y(ent.y + ent.velocity.y + ent.collision_velocity.y);
     if (!ent.has_component(kPetal)) {

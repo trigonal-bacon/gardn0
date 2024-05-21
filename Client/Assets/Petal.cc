@@ -173,7 +173,54 @@ void draw_static_petal_single(uint8_t id, Renderer &ctx) {
             ctx.set_fill(0xffcccccc);
             ctx.fill();
             break;
+        case PetalId::kRose:
+        case PetalId::kAzalea:
+            ctx.set_fill(0xffff94c9);
+            ctx.set_stroke(0xffcf78a3);
+            ctx.set_line_width(3);
+            ctx.begin_path();
+            ctx.arc(0,0,PETAL_DATA[id].radius);
+            ctx.fill();
+            ctx.stroke();
+            break;
+        case PetalId::kCactus:
+        case PetalId::kTricac:
+            ctx.set_fill(0xff38c75f);
+            ctx.set_stroke(Renderer::HSV(0xff38c75f, 0.8));
+            ctx.set_line_width(3);
+            ctx.round_line_cap();
+            ctx.round_line_join();
+            ctx.begin_path();
+            ctx.move_to(15,0);
+            for (uint32_t i = 0; i < 8; ++i) {
+                float base_angle = M_PI * 2 * i / 8;
+                ctx.qcurve_to(15*0.8*cosf(base_angle+M_PI/8),15*0.8*sinf(base_angle+M_PI/8),15*cosf(base_angle+2*M_PI/8),15*sinf(base_angle+2*M_PI/8));
+            }
+            ctx.fill();
+            ctx.stroke();
+            ctx.set_fill(0xff74d68f);
+            ctx.begin_path();
+            ctx.arc(0,0,8);
+            ctx.fill();
+            break;
+        case PetalId::kEAzalea: {
+            ctx.set_fill(0xffff94c9);
+            ctx.set_stroke(0xffcf78a3);
+            ctx.set_line_width(3);
+            ctx.begin_path();
+            float r = PETAL_DATA[id].radius;
+            float base = M_PI / 10;
+            ctx.move_to(r * cosf(base), r * sinf(base));
+            for (uint32_t i = 0; i < 5; ++i) {
+                ctx.qcurve_to(1.2 * r * cosf((4 * i + 2) * base), 1.2 * r * sinf((4 * i + 2) * base), r * cosf((4 * i + 3) * base), r * sinf((4 * i + 3) * base));
+                ctx.qcurve_to(0.8 * r * cosf((4 * i + 4) * base), 0.8 * r * sinf((4 * i + 4) * base), r * cosf((4 * i + 5) * base), r * sinf((4 * i + 5) * base));
+            }
+            ctx.fill();
+            ctx.stroke();
+            break;
+        }
         default:
+            assert(!"didn't cover petal render");
             break;
     }
 }
@@ -181,7 +228,7 @@ void draw_static_petal_single(uint8_t id, Renderer &ctx) {
 void draw_static_petal(uint8_t id, Renderer &ctx) {
     for (uint32_t i = 0; i < PETAL_DATA[id].count; ++i) {
         RenderContext context(&ctx);
-        float rad = PETAL_DATA[id].clump_radius;
+        float rad = PETAL_DATA[id].extras.clump_radius;
         rad += (rad == 0) * 10;
         ctx.rotate(i * 2 * M_PI / PETAL_DATA[id].count);
         if (PETAL_DATA[id].count > 1) ctx.translate(rad, 0);

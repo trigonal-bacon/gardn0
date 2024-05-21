@@ -15,4 +15,5 @@ void tick_health_behavior(Simulation *simulation, Entity &ent) {
         if (ent.applied_poison.ticks_left % ((uint32_t) SERVER_TIME(1)) == 0) ent.set_damaged(1);
         if (h == 0) simulation->request_delete(ent.id);
     }
+    if (ent.immunity_ticks > 0) --ent.immunity_ticks;
 }

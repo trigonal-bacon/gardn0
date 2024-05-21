@@ -5,6 +5,12 @@
 
 Simulation::Simulation() SERVER_ONLY(: spatial_hash(this)) {}
 
+void Simulation::reset() {
+    active_entities.clear();
+    pending_delete.clear();
+    for (uint32_t i = 0; i < ENTITY_CAP; ++i) hash_tracker[i] = entity_tracker[i] = 0;
+}
+
 Entity &Simulation::alloc_ent() {
     for (uint32_t i = 1; i < ENTITY_CAP; ++i) {
         if (entity_tracker[i]) continue;

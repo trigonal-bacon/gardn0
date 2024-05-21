@@ -8,7 +8,7 @@ uint8_t INCOMING_PACKET[1024 * 1024] = {0};
 extern "C" {
     void on_message(uint8_t type, uint32_t len) {
         if (type == 0) gardn->socket.ready = 1;
-        else if (type == 2) { gardn->socket.ready = gardn->simulation_ready = 0; gardn->camera_id = NULL_ENTITY; }
+        else if (type == 2) { gardn->in_game = 0; gardn->socket.ready = gardn->simulation_ready = 0; gardn->camera_id = NULL_ENTITY; gardn->simulation.reset(); }
         else if (type == 1) gardn->on_message(static_cast<uint8_t *>(INCOMING_PACKET), len);
     }
 }

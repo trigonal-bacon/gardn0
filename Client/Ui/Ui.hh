@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Client/Ui/Button.hh>
+#include <Client/Ui/Choose.hh>
 #include <Client/Ui/Container.hh>
 #include <Client/Ui/ExternDef.hh>
 #include <Client/Ui/Element.hh>

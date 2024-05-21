@@ -24,10 +24,10 @@ void tick_petal(Simulation *simulation, Entity &petal, uint32_t rot_pos, uint32_
     move_to.unit_normal(angle).set_magnitude(mag);
     move_to.x += player.x - petal.x - player.velocity.x;
     move_to.y += player.y - petal.y - player.velocity.y;
-    if (PETAL_DATA[petal.petal_id].clump_radius != 0) {
+    if (PETAL_DATA[petal.petal_id].extras.clump_radius != 0) {
         Vector clump_vector;
         float angle_addition = player.rotation_angle * 0.75 + 2 * M_PI * secondary_pos / PETAL_DATA[petal.petal_id].count;
-        clump_vector.unit_normal(angle_addition).set_magnitude(PETAL_DATA[petal.petal_id].clump_radius);
+        clump_vector.unit_normal(angle_addition).set_magnitude(PETAL_DATA[petal.petal_id].extras.clump_radius);
         angle += angle_addition;
         move_to += clump_vector;
     }
@@ -41,9 +41,7 @@ void tick_petal(Simulation *simulation, Entity &petal, uint32_t rot_pos, uint32_
     else petal.set_angle(fmod(petal.angle + REAL_TIME(2), M_PI * 2));
 }
 
-static void player_behavior(Simulation *simulation, Entity &player) {
-    //player guaranteed to be ALIVE
-    assert(simulation->ent_exists(player.parent));
+static void calculate_petal_passive_buffs(Simulation *simulation, Entity &player) {
     Entity &camera = simulation->get_ent(player.parent);
     camera.set_experience(player.score);
     uint32_t prev_slot_count = camera.loadout_count;
@@ -57,23 +55,52 @@ static void player_behavior(Simulation *simulation, Entity &player) {
         }
         camera.set_loadout_count(curr_slot_count);
     }
-    float ratio = player.health / player.max_health;
+
     float max_health_adj = 100 + fclamp((lvl - 1) * 50 / 44, 0, 50);
+
+    for (uint32_t i = 0; i < camera.loadout_count; ++i) {
+        LoadoutSlot &slot = camera.loadout[i];
+        struct PetalData &petal_data = PETAL_DATA[slot.id];
+        if (slot.id == PetalId::kNone) continue;
+        if (slot.id == PetalId::kLeaf) inflict_heal(simulation, player, REAL_TIME(petal_data.extras.heal));
+        if (slot.id == PetalId::kCactus) max_health_adj += 20;
+        if (slot.id == PetalId::kTricac) max_health_adj += 40;
+        /*
+        for (uint32_t j = 0; j < petal_data.count; ++j) {
+        }
+        */
+    }
+    float ratio = player.health / player.max_health;
+
     player.set_max_health(max_health_adj);
     player.set_health(ratio * max_health_adj);
+    player.rotation_angle += REAL_TIME(2.5);
+
+    player.set_face_flags(BIT_SHIFT(BIT_AT(player.input, 0), 0) | BIT_SHIFT(BIT_AT(player.input, 1), 1));
+    if (player.applied_poison.ticks_left > 0) player.set_face_flags(BIT_SHIFT(1, 1) | BIT_SHIFT(1, 2));
+}
+
+static void player_behavior(Simulation *simulation, Entity &player) {
+    //player guaranteed to be ALIVE
+    assert(simulation->ent_exists(player.parent));
+    Entity &camera = simulation->get_ent(player.parent);
+
     uint32_t rotation_pos = 0;
     for (uint32_t i = 0; i < camera.loadout_count; ++i) {
         LoadoutSlot &slot = camera.loadout[i];
+        struct PetalData &petal_data = PETAL_DATA[slot.id];
         camera.set_loadout_ids(i, slot.id);
-        if (slot.id == 0) continue;
-        if (slot.id == PetalId::kLeaf) inflict_heal(simulation, player, REAL_TIME(1));
-        uint32_t max = SERVER_TIME(PETAL_DATA[slot.id].reload);
+        if (slot.id == PetalId::kNone) continue;
+        //if (slot.id == PetalId::kLeaf) inflict_heal(simulation, player, REAL_TIME(petal_data.extras.heal));
+        uint32_t max = SERVER_TIME(petal_data.reload);
         uint32_t min = max;
-        for (uint32_t j = 0; j < PETAL_DATA[slot.id].count; ++j) {
+        if (petal_data.extras.clump_radius != 0) ++rotation_pos;
+        for (uint32_t j = 0; j < petal_data.count; ++j) {
             LoadoutPetal &petal_slot = slot.petals[j];
+            if (petal_data.extras.clump_radius == 0) ++rotation_pos;
             if (!simulation->ent_alive(petal_slot.ent_id)) {
                 if (petal_slot.reload < min) min = petal_slot.reload;
-                if (++petal_slot.reload >= SERVER_TIME(PETAL_DATA[slot.id].reload)) {
+                if (++petal_slot.reload >= SERVER_TIME(petal_data.reload)) {
                     Entity &petal = simulation->alloc_petal(slot.id);
                     petal.set_x(player.x);
                     petal.set_y(player.y);
@@ -83,10 +110,11 @@ static void player_behavior(Simulation *simulation, Entity &player) {
                 }
             } else {
                 Entity &petal = simulation->get_ent(petal_slot.ent_id);
+                if (petal.has_component(kMob)) --rotation_pos;
                 petal_slot.reload = 0;
                 //spawn eggs here...
                 ++petal.effect_delay;
-                if (petal.petal_id == PetalId::kEgg && petal.effect_delay >= SERVER_TIME(PETAL_DATA[PetalId::kEgg].secondary_reload)) {
+                if (petal.petal_id == PetalId::kEgg && petal.effect_delay >= SERVER_TIME(petal_data.extras.secondary_reload)) {
                     Entity &summon = simulation->alloc_mob(MobId::kSoldierAnt);
                     summon.set_team(player.parent);
                     summon.set_parent(player.id);
@@ -96,7 +124,7 @@ static void player_behavior(Simulation *simulation, Entity &player) {
                     petal_slot.ent_id = summon.id;
                     continue;
                 }
-                if (petal.petal_id == PetalId::kBeetleEgg && petal.effect_delay >= SERVER_TIME(PETAL_DATA[PetalId::kBeetleEgg].secondary_reload)) {
+                if (petal.petal_id == PetalId::kBeetleEgg && petal.effect_delay >= SERVER_TIME(petal_data.extras.secondary_reload)) {
                     Entity &summon = simulation->alloc_mob(MobId::kBeetle);
                     summon.set_team(player.parent);
                     summon.set_parent(player.id);
@@ -106,39 +134,41 @@ static void player_behavior(Simulation *simulation, Entity &player) {
                     petal_slot.ent_id = summon.id;
                     continue;
                 }
-                if (petal.petal_id == PetalId::kMissile && petal.effect_delay >= SERVER_TIME(PETAL_DATA[PetalId::kMissile].secondary_reload) && (BIT_AT(player.input, 0))) {
+                if (petal.petal_id == PetalId::kMissile && petal.effect_delay >= SERVER_TIME(petal_data.extras.secondary_reload) && (BIT_AT(player.input, 0))) {
                     petal.detached = 1;
                     petal.effect_delay = SERVER_TIME(3);
                     petal.velocity.unit_normal(petal.angle).set_magnitude(PLAYER_ACCELERATION * 4 / petal.friction);
                     petal_slot.ent_id = NULL_ENTITY;
                     continue;
                 }
-                if (petal.petal_id == PetalId::kBubble && petal.effect_delay >= SERVER_TIME(PETAL_DATA[PetalId::kBubble].secondary_reload) && (BIT_AT(player.input, 1))) {
+                if (petal.petal_id == PetalId::kBubble && petal.effect_delay >= SERVER_TIME(petal_data.extras.secondary_reload) && (BIT_AT(player.input, 1))) {
                     petal.detached = 1;
                     Vector delta(player.x - petal.x, player.y - petal.y);
                     player.acceleration += delta.set_magnitude(10 * PLAYER_ACCELERATION);
                     simulation->request_delete(petal.id);
-                    //petal.effect_delay = SERVER_TIME(3);
-                    //petal.velocity.unit_normal(petal.angle).set_magnitude(PLAYER_ACCELERATION * 4 / petal.friction);
-                    //petal_slot.ent_id = NULL_ENTITY;
                     continue;
                 }
-                if (!petal.has_component(kMob) && petal.has_component(kPetal)) tick_petal(simulation, petal, rotation_pos, j);
-                else --rotation_pos;
+                if ((petal.petal_id == PetalId::kRose || petal.petal_id == PetalId::kAzalea || petal.petal_id == PetalId::kEAzalea) && petal.effect_delay >= SERVER_TIME(petal_data.extras.secondary_reload) && player.health < player.max_health) {
+                    Vector delta(player.x - petal.x, player.y - petal.y);
+                    Vector add{delta.x * 0.25f, delta.y * 0.25f};
+                    if (add.magnitude() > PLAYER_ACCELERATION * 3) add.set_magnitude(PLAYER_ACCELERATION * 3);
+                    petal.acceleration += add;
+                    petal.acceleration += player.acceleration;
+                    if (delta.magnitude() < player.radius) {
+                        inflict_heal(simulation, player, petal_data.extras.heal);
+                        simulation->request_delete(petal.id);
+                    }
+                    continue;
+                }
+                if (!petal.has_component(kMob)) tick_petal(simulation, petal, rotation_pos, j);
             }
-            if (PETAL_DATA[slot.id].clump_radius == 0) ++rotation_pos;
         }
-        if (PETAL_DATA[slot.id].clump_radius != 0) ++rotation_pos;
         camera.set_loadout_reloads(i, min * 255 / max);
     }
     player.rotation_count = rotation_pos;
-    player.rotation_angle += REAL_TIME(2.5);
-
-    camera.set_experience(player.score);
-    player.set_face_flags(BIT_SHIFT(BIT_AT(player.input, 0), 0) | BIT_SHIFT(BIT_AT(player.input, 1), 1));
-    if (player.applied_poison.ticks_left > 0) player.set_face_flags(BIT_SHIFT(1, 1) | BIT_SHIFT(1, 2));
-    //player.rotation_angle = fmod(player.rotation_angle, 2 * M_PI);
+    calculate_petal_passive_buffs(simulation, player);
 }
+
 static void tick_detached_petal_behavior(Simulation *simulation, Entity &petal) {
     if (--petal.effect_delay == 0) return simulation->request_delete(petal.id);
     if (petal.petal_id == PetalId::kMissile) {

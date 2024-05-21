@@ -19,6 +19,7 @@ set(SRCS
     Ui/InGame/Loadout.cc
     Ui/TitleScreen/Loadout.cc
     Ui/Button.cc
+    Ui/Choose.cc
     Ui/Container.cc
     Ui/Element.cc
     Ui/ExternDef.cc
@@ -41,7 +42,7 @@ set(SRCS
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DCLIENT_SIDE=1 -std=c++20")
 set(CMAKE_CXX_COMPILER "em++")
 if(DEBUG)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1 -gdwarf-4")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1 -gdwarf-4 -sNO_DISABLE_EXCEPTION_CATCHING")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -ffast-math --closure=1")
 endif()
