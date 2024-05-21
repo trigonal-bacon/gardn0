@@ -74,7 +74,6 @@ LoadoutPetalButton::LoadoutPetalButton(uint8_t dynamic_pos) {
             uint8_t pos_to = self->get_static_loadout_pos();
             LoadoutPetalBackground *to = petal_backgrounds[pos_to];
             if (self->snap_to == petal_backgrounds[2 * MAX_SLOT_COUNT] && self->prev_id == PetalId::kNone) to = self->snap_to;
-            float _d = 1 - (pow(1 - 0.35, g_frame_dt * 60 / 1000));
             LERP(self->x, to->screen_x, _d);
             LERP(self->y, to->screen_y, _d);
             if (self == petal_button_focused_by_keypad) {

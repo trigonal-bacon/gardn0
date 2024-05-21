@@ -43,6 +43,7 @@ Game::Game() {
                                     uint8_t packet[16];
                                     Writer writer(static_cast<uint8_t *>(packet));
                                     writer.write_uint8(kServerbound::kClientSpawn);
+                                    writer.write_string("TestName.com");
                                     socket.send(writer.packet, writer.at - writer.packet);
                                     in_game = 1;
                                 }
@@ -126,6 +127,33 @@ Game::Game() {
                         })
                     )
                 })->pad(10,10)
+            )
+        )
+    );
+    window.add_child(
+        ui::Pad<20,20>(
+            ui::Justify<1,-1>(
+                ui::SetRenderCondition(
+                    [&](){ return simulation_ready && in_game; },
+                    ui::AddTheme(
+                        ui::VisualData::PanelBackground(0xff639fb5),
+                        (new ui::VContainer{
+                            new ui::StaticLabel{{"Leaderboard", 20}},
+                            (new ui::VContainer{
+                                new ui::LeaderboardBar(0),
+                                new ui::LeaderboardBar(1),
+                                new ui::LeaderboardBar(2),
+                                new ui::LeaderboardBar(3),
+                                new ui::LeaderboardBar(4),
+                                new ui::LeaderboardBar(5),
+                                new ui::LeaderboardBar(6),
+                                new ui::LeaderboardBar(7),
+                                new ui::LeaderboardBar(8),
+                                new ui::LeaderboardBar(9),
+                            })->pad(10,10)
+                        })->pad(10,10)
+                    )
+                )
             )
         )
     );
@@ -328,6 +356,15 @@ void Game::on_message(uint8_t *ptr, uint32_t len) {
                 Entity &ent = simulation.get_ent(curr_id);
                 ent.read(&reader);
                 curr_id = reader.read_entid();
+            }
+            //scoreboard
+            uint32_t len = reader.read_uint32();
+            simulation.leaderboard.clear();
+            for (uint32_t i = 0; i < len; ++i) {
+                simulation.leaderboard.push({});
+                reader.read_string(simulation.leaderboard[i].name);
+                simulation.leaderboard[i].id = reader.read_entid();
+                simulation.leaderboard[i].score = reader.read_float();
             }
             //simulation.post_tick();
             break;

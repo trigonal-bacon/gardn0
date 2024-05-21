@@ -70,4 +70,11 @@ namespace ui {
         s->v_justify = vj;
         return s;
     }
+
+    template<int x, int y>
+    Element *Pad(Element *s) {
+        s->x = -x * s->h_justify;
+        s->y = -y * s->v_justify;
+        return s;
+    }
 };

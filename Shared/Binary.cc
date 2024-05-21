@@ -27,9 +27,14 @@ void Writer::write_float(float v) {
     write_int32(v * 1024);
 }
 
-void Writer::write_entid(EntityId &id) {
+void Writer::write_entid(EntityId const &id) {
     write_uint32(id.id);
     if (id.id) write_uint32(id.hash);
+}
+
+void Writer::write_string(std::string const &str) {
+    write_uint32(str.size());
+    for (uint32_t i = 0; i < str.size(); ++i) write_uint32(str[i]);
 }
 
 Reader::Reader(uint8_t const *buf) : at(buf), packet(buf) {}
@@ -64,4 +69,31 @@ EntityId Reader::read_entid() {
     uint16_t id = read_uint32();
     uint16_t hash = id ? read_uint32() : 0;
     return {id, hash};
+}
+
+void Reader::read_uint8(uint8_t &ref) {
+    ref = read_uint8();
+}
+
+void Reader::read_uint32(uint32_t &ref) {
+    ref = read_uint32();
+}
+
+void Reader::read_int32(int32_t &ref) {
+    ref = read_int32();
+}
+
+void Reader::read_float(float &ref) {
+    ref = read_float();
+}
+
+void Reader::read_entid(EntityId &ref) {
+    ref = read_entid();
+}
+
+void Reader::read_string(std::string &ref) {
+    uint32_t len = read_uint32();
+    ref.clear();
+    ref.reserve(len);
+    for (uint32_t i = 0; i < len; ++i) ref.push_back(read_uint32());
 }

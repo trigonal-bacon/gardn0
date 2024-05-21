@@ -15,6 +15,7 @@ set(SRCS
     Render/RenderMob.cc
     Render/RenderPetal.cc
     Ui/InGame/DeathScreen.cc
+    Ui/InGame/LeaderboardBar.cc
     Ui/InGame/LevelBar.cc
     Ui/InGame/Loadout.cc
     Ui/TitleScreen/Loadout.cc

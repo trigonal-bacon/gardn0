@@ -4,9 +4,26 @@
 
 #include <Shared/Entity.hh>
 
+#include <iostream>
+
 void render_flower(Entity &ent, Renderer &ctx) {
     ctx.set_global_alpha(1 - ent.lerp_deletion_tick * 0.2);
     ctx.scale(1 + 0.1 * ent.lerp_deletion_tick);
+    {
+        //nametag
+        std::cout << ent.name << '\n';
+        RenderContext context(&ctx);
+        ctx.set_fill(0xffffffff);
+        ctx.set_stroke(0xff222222);
+        ctx.set_text_size(20);
+        ctx.set_line_width(20 * 0.12);
+        ctx.center_text_align();
+        ctx.center_text_baseline();
+        ctx.translate(0,-ent.radius - 25);
+        char const *ptr = ent.name.c_str();
+        ctx.stroke_text(ptr);
+        ctx.fill_text(ptr);
+    }
     ctx.add_color_filter(0xffac0000, ent.damage_flash);
     uint32_t base_color = 0xffffe763;
     if (BIT_AT(ent.face_flags, 2)) base_color = 0xffce76db;

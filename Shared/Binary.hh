@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+#include <string>
+
 enum kClientbound {
     kClientUpdate
 };
@@ -25,7 +27,8 @@ public:
     void write_uint32(uint32_t);
     void write_int32(int32_t);
     void write_float(float);
-    void write_entid(EntityId &);
+    void write_entid(EntityId const &);
+    void write_string(std::string const &);
 };
 
 class Reader {
@@ -39,11 +42,10 @@ public:
     float read_float();
     EntityId read_entid();
 
-/*
     void read_uint8(uint8_t &);
     void read_uint32(uint32_t &);
     void read_int32(int32_t &);
     void read_float(float &);
     void read_entid(EntityId &);
-    */
+    void read_string(std::string &);
 };

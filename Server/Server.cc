@@ -65,13 +65,14 @@ void Server::run() {
                     break;
                 }
                 case kServerbound::kClientSpawn: {
-                    std::cout << "client spawn\n";
                     if (client->alive()) break;
                     Entity &camera = global_server.simulation.get_ent(client->camera);
                     camera.set_camera_x(frand() * ARENA_WIDTH);
                     camera.set_camera_y(frand() * ARENA_HEIGHT);
                     Entity &player = global_server.simulation.alloc_player(camera);
-                    player.set_score(camera.experience / 2);
+                    reader.read_string(player.name);
+                    player.state_name = 1; //manually
+                    std::cout << "client spawn: " << player.name << "\n";
                     uint32_t slots = 5 + get_level_from_xp(player.score) / 15;
                     if (slots > MAX_SLOT_COUNT) slots = MAX_SLOT_COUNT;
                     camera.set_loadout_count(slots);

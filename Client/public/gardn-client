@@ -1199,42 +1199,42 @@ var tempI64;
 // === Body ===
 
 var ASM_CONSTS = {
-  35408: ($0) => { Module.ctxs[$0].save(); },  
- 35436: ($0) => { Module.ctxs[$0].restore(); },  
- 35467: () => { if (Module.availableCtxs.length) { const index = Module.availableCtxs.shift(); if (index == 0) return 0; const ocanvas = new OffscreenCanvas(1, 1); Module.ctxs[index] = ocanvas.getContext('2d'); return index; } throw new Error( 'Out of Contexts: Can be fixed by allowing more contexts'); return -1; },  
- 35770: ($0) => { if ($0 == 0) throw new Error('Tried to delete the main context'); Module.ctxs[$0] = null; Module.availableCtxs.push($0); },  
- 35895: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].fillStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")"; },  
- 35968: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].strokeStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")"; },  
- 36043: ($0, $1) => { Module.ctxs[$0].lineWidth = $1; },  
- 36079: ($0, $1) => { Module.ctxs[$0].font = $1 + "px Ubuntu"; },  
- 36124: ($0, $1) => { Module.ctxs[$0].globalAlpha = $1; },  
- 36162: ($0) => { Module.ctxs[$0].lineCap = "round"; },  
- 36201: ($0) => { Module.ctxs[$0].lineJoin = "round"; },  
- 36241: ($0) => { Module.ctxs[$0].textAlign = "center"; },  
- 36283: ($0) => { Module.ctxs[$0].textBaseline = "middle"; },  
- 36328: ($0) => { Module.ctxs[$0].beginPath(); },  
- 36361: ($0, $1, $2) => { Module.ctxs[$0].moveTo($1, $2); },  
- 36397: ($0, $1, $2) => { Module.ctxs[$0].lineTo($1, $2); },  
- 36433: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].quadraticCurveTo($1, $2, $3, $4); },  
- 36487: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].bezierCurveTo($1, $2, $3, $4, $5, $6); },  
- 36546: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].arc($1, $2, $3, $4, $5, !!$6); },  
- 36597: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].ellipse($1, $2, $3, $4, 0, 2 * Math.PI, 0); },  
- 36661: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].fillRect($1, $2, $3, $4); },  
- 36707: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].strokeRect($1, $2, $3, $4); },  
- 36755: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].rect($1, $2, $3, $4); },  
- 36797: ($0) => { Module.ctxs[$0].closePath(); },  
- 36830: ($0) => { Module.ctxs[$0].fill(); },  
- 36858: ($0) => { Module.ctxs[$0].stroke(); },  
- 36888: ($0) => { Module.ctxs[$0].clip(); },  
- 36916: ($0, $1, $2) => { Module.ctxs[$0].fillText(Module.TextDecoder.decode(HEAPU8.subarray($1, $1+$2)),0,0); },  
- 37005: ($0, $1, $2) => { Module.ctxs[$0].strokeText(Module.TextDecoder.decode(HEAPU8.subarray($1, $1+$2)),0,0); },  
- 37096: ($0, $1, $2) => { return Module.ctxs[$0].measureText(Module.TextDecoder.decode(HEAPU8.subarray($1, $1+$2)),0,0).width; },  
- 37201: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].setTransform($1, $2, $4, $5, $3, $6); },  
- 37259: () => { Module.canvas = document.createElement("canvas"); Module.canvas.id = "canvas"; Module.canvas.width = innerWidth * devicePixelRatio; Module.canvas.height = innerHeight * devicePixelRatio; Module.canvas.oncontextmenu = function() { return false; }; window.onbeforeunload = function(e) { return "Are you sure?"; }; document.body.appendChild(Module.canvas); Module.ctxs = [Module.canvas.getContext('2d')]; Module.availableCtxs = new Array(256).fill(0).map(function(_, i) { return i; }); Module.TextDecoder = new TextDecoder('utf8'); },  
- 37792: () => { window.addEventListener("keydown", (e) => { _key_event(e.which, 0); }); window.addEventListener("keyup", (e) => { _key_event(e.which, 1); }); window.addEventListener("mousedown", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 0, +!!e.button); }); window.addEventListener("mousemove", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 1, +!!e.button); }); window.addEventListener("mouseup", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 2, +!!e.button); }); },  
- 38356: () => { function loop(time) { Module.canvas.width = innerWidth * devicePixelRatio; Module.canvas.height = innerHeight * devicePixelRatio; _loop(time, Module.canvas.width, Module.canvas.height); requestAnimationFrame(loop); }; requestAnimationFrame(loop); },  
- 38607: ($0, $1) => { let string = UTF8ToString($1); function connect() { let socket = Module.socket = new WebSocket(string); socket.binaryType = "arraybuffer"; socket.onopen = function() { console.log("Connected"); _on_message(0); }; socket.onclose = function(a) { console.log("Disconnected"); _on_message(2, a.code); setTimeout(connect, 1000); }; socket.onmessage = function(event) { HEAPU8.set(new Uint8Array(event.data), $0); _on_message(1, event.data.length); }; } setTimeout(connect, 1000); },  
- 39086: ($0, $1) => { if (Module.socket?.readyState == 1) { Module.socket.send(HEAPU8.subarray($0, $0+$1)); } }
+  36064: ($0) => { Module.ctxs[$0].save(); },  
+ 36092: ($0) => { Module.ctxs[$0].restore(); },  
+ 36123: () => { if (Module.availableCtxs.length) { const index = Module.availableCtxs.shift(); if (index == 0) return 0; const ocanvas = new OffscreenCanvas(1, 1); Module.ctxs[index] = ocanvas.getContext('2d'); return index; } throw new Error( 'Out of Contexts: Can be fixed by allowing more contexts'); return -1; },  
+ 36426: ($0) => { if ($0 == 0) throw new Error('Tried to delete the main context'); Module.ctxs[$0] = null; Module.availableCtxs.push($0); },  
+ 36551: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].fillStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")"; },  
+ 36624: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].strokeStyle = "rgba("+$3+","+$2+","+$1+","+$4/255+")"; },  
+ 36699: ($0, $1) => { Module.ctxs[$0].lineWidth = $1; },  
+ 36735: ($0, $1) => { Module.ctxs[$0].font = $1 + "px Ubuntu"; },  
+ 36780: ($0, $1) => { Module.ctxs[$0].globalAlpha = $1; },  
+ 36818: ($0) => { Module.ctxs[$0].lineCap = "round"; },  
+ 36857: ($0) => { Module.ctxs[$0].lineJoin = "round"; },  
+ 36897: ($0) => { Module.ctxs[$0].textAlign = "center"; },  
+ 36939: ($0) => { Module.ctxs[$0].textBaseline = "middle"; },  
+ 36984: ($0) => { Module.ctxs[$0].beginPath(); },  
+ 37017: ($0, $1, $2) => { Module.ctxs[$0].moveTo($1, $2); },  
+ 37053: ($0, $1, $2) => { Module.ctxs[$0].lineTo($1, $2); },  
+ 37089: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].quadraticCurveTo($1, $2, $3, $4); },  
+ 37143: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].bezierCurveTo($1, $2, $3, $4, $5, $6); },  
+ 37202: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].arc($1, $2, $3, $4, $5, !!$6); },  
+ 37253: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].ellipse($1, $2, $3, $4, 0, 2 * Math.PI, 0); },  
+ 37317: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].fillRect($1, $2, $3, $4); },  
+ 37363: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].strokeRect($1, $2, $3, $4); },  
+ 37411: ($0, $1, $2, $3, $4) => { Module.ctxs[$0].rect($1, $2, $3, $4); },  
+ 37453: ($0) => { Module.ctxs[$0].closePath(); },  
+ 37486: ($0) => { Module.ctxs[$0].fill(); },  
+ 37514: ($0) => { Module.ctxs[$0].stroke(); },  
+ 37544: ($0) => { Module.ctxs[$0].clip(); },  
+ 37572: ($0, $1, $2) => { Module.ctxs[$0].fillText(Module.TextDecoder.decode(HEAPU8.subarray($1, $1+$2)),0,0); },  
+ 37661: ($0, $1, $2) => { Module.ctxs[$0].strokeText(Module.TextDecoder.decode(HEAPU8.subarray($1, $1+$2)),0,0); },  
+ 37752: ($0, $1, $2) => { return Module.ctxs[$0].measureText(Module.TextDecoder.decode(HEAPU8.subarray($1, $1+$2)),0,0).width; },  
+ 37857: ($0, $1, $2, $3, $4, $5, $6) => { Module.ctxs[$0].setTransform($1, $2, $4, $5, $3, $6); },  
+ 37915: () => { Module.canvas = document.createElement("canvas"); Module.canvas.id = "canvas"; Module.canvas.width = innerWidth * devicePixelRatio; Module.canvas.height = innerHeight * devicePixelRatio; Module.canvas.oncontextmenu = function() { return false; }; window.onbeforeunload = function(e) { return "Are you sure?"; }; document.body.appendChild(Module.canvas); Module.ctxs = [Module.canvas.getContext('2d')]; Module.availableCtxs = new Array(256).fill(0).map(function(_, i) { return i; }); Module.TextDecoder = new TextDecoder('utf8'); },  
+ 38448: () => { window.addEventListener("keydown", (e) => { _key_event(e.which, 0); }); window.addEventListener("keyup", (e) => { _key_event(e.which, 1); }); window.addEventListener("mousedown", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 0, +!!e.button); }); window.addEventListener("mousemove", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 1, +!!e.button); }); window.addEventListener("mouseup", (e) => { _mouse_event(e.clientX * devicePixelRatio, e.clientY * devicePixelRatio, 2, +!!e.button); }); },  
+ 39012: () => { function loop(time) { Module.canvas.width = innerWidth * devicePixelRatio; Module.canvas.height = innerHeight * devicePixelRatio; _loop(time, Module.canvas.width, Module.canvas.height); requestAnimationFrame(loop); }; requestAnimationFrame(loop); },  
+ 39263: ($0, $1) => { let string = UTF8ToString($1); function connect() { let socket = Module.socket = new WebSocket(string); socket.binaryType = "arraybuffer"; socket.onopen = function() { console.log("Connected"); _on_message(0); }; socket.onclose = function(a) { console.log("Disconnected"); _on_message(2, a.code); setTimeout(connect, 1000); }; socket.onmessage = function(event) { HEAPU8.set(new Uint8Array(event.data), $0); _on_message(1, event.data.length); }; } setTimeout(connect, 1000); },  
+ 39742: ($0, $1) => { if (Module.socket?.readyState == 1) { Module.socket.send(HEAPU8.subarray($0, $0+$1)); } }
 };
 
 
@@ -4893,6 +4893,17 @@ function invoke_iiii(index,a1,a2,a3) {
   }
 }
 
+function invoke_viii(index,a1,a2,a3) {
+  var sp = stackSave();
+  try {
+    getWasmTableEntry(index)(a1,a2,a3);
+  } catch(e) {
+    stackRestore(sp);
+    if (e !== e+0) throw e;
+    _setThrew(1, 0);
+  }
+}
+
 function invoke_iif(index,a1,a2) {
   var sp = stackSave();
   try {
@@ -4919,17 +4930,6 @@ function invoke_iiff(index,a1,a2,a3) {
   var sp = stackSave();
   try {
     return getWasmTableEntry(index)(a1,a2,a3);
-  } catch(e) {
-    stackRestore(sp);
-    if (e !== e+0) throw e;
-    _setThrew(1, 0);
-  }
-}
-
-function invoke_viii(index,a1,a2,a3) {
-  var sp = stackSave();
-  try {
-    getWasmTableEntry(index)(a1,a2,a3);
   } catch(e) {
     stackRestore(sp);
     if (e !== e+0) throw e;

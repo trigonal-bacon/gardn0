@@ -10,11 +10,21 @@
 class Client;
 #endif
 
+#include <string>
+
 static const uint32_t ENTITY_CAP = 4096;
+
+class LeaderboardEntry {
+public:
+    std::string name;
+    EntityId id;
+    float score = 0;
+};
 
 class Simulation {
 public:
 SERVER_ONLY(SpatialHash spatial_hash;)
+    StaticArray<LeaderboardEntry, 10> leaderboard;
     uint8_t entity_tracker[ENTITY_CAP] = {0};
     uint32_t hash_tracker[ENTITY_CAP] = {0};
     Entity entities[ENTITY_CAP];
@@ -33,6 +43,7 @@ SERVER_ONLY(SpatialHash spatial_hash;)
     void tick();
     void post_tick();
 #ifdef SERVER_SIDE
+    void calculate_leaderboard();
     void update_client(Client *);
     Entity &alloc_mob(uint8_t);
     Entity &alloc_player(Entity &);

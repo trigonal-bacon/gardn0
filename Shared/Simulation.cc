@@ -8,7 +8,10 @@ Simulation::Simulation() SERVER_ONLY(: spatial_hash(this)) {}
 void Simulation::reset() {
     active_entities.clear();
     pending_delete.clear();
-    for (uint32_t i = 0; i < ENTITY_CAP; ++i) hash_tracker[i] = entity_tracker[i] = 0;
+    for (uint32_t i = 0; i < ENTITY_CAP; ++i) { 
+        hash_tracker[i] = entity_tracker[i] = 0;
+        entities[i].init();
+    }
 }
 
 Entity &Simulation::alloc_ent() {

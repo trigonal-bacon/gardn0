@@ -7,6 +7,7 @@
 #include <Shared/StaticData.hh>
 
 #include <stdint.h>
+#include <string>
 
 #define PERCOMPONENT \
 COMPONENT(Physics) \
@@ -31,6 +32,7 @@ typedef EntityId entid;
 typedef uint8_t uint8;
 typedef uint32_t uint32;
 typedef int32_t int32;
+typedef std::string string;
 
 #define FIELDS_Physics \
 _SINGLE(x, float) \
@@ -72,7 +74,8 @@ _SINGLE(mob_id, uint8)
 _SINGLE(drop_id, uint8)
 
 #define FIELDS_Score \
-_SINGLE(score, float)
+_SINGLE(score, float) \
+_SINGLE(name, string)
 
 #define FIELDS_Segmented \
 _SINGLE(is_head, uint8)
@@ -146,7 +149,7 @@ public:
     uint32_t components;
     EntityId id;
 #define _SINGLE(name, type) type name;
-#define _MULTIPLE(name, type, amt) type name[amt] = {0};
+#define _MULTIPLE(name, type, amt) type name[amt];
 PERFIELD
 #undef _SINGLE
 #undef _MULTIPLE
@@ -163,14 +166,14 @@ PER_EXTRA_FIELD
 #undef _SINGLE
 #undef _MULTIPLE
 #ifdef SERVER_SIDE
-void write(Writer *, uint8_t);
-#define _SINGLE(name, type) void set_##name(type);
-#define _MULTIPLE(name, type, amt) void set_##name(uint32_t, type);
-PERFIELD
-#undef _SINGLE
-#undef _MULTIPLE
+    void write(Writer *, uint8_t);
+    #define _SINGLE(name, type) void set_##name(type const);
+    #define _MULTIPLE(name, type, amt) void set_##name(uint32_t, type const);
+    PERFIELD
+    #undef _SINGLE
+    #undef _MULTIPLE
 #else
-void read(Reader *);
+    void read(Reader *);
 #endif
 };
 

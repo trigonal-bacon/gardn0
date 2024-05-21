@@ -7,6 +7,7 @@
 #include <cmath>
 #include <iostream>
 #include <set>
+#include <vector>
 
 Entity &_alloc_mob(Simulation *sim, uint8_t mob_id) {
     Entity &mob = sim->alloc_ent();
@@ -24,9 +25,11 @@ Entity &_alloc_mob(Simulation *sim, uint8_t mob_id) {
     mob.set_mob_id(mob_id);
     mob.add_component(kScore);
     mob.set_score(MOB_DATA[mob_id].xp * 2); //double since killing = half
+    mob.set_name({MOB_DATA[mob_id].name});
     if (mob_id == MobId::kRock) mob.set_radius(15 + frand() * 25);
     else if (mob_id == MobId::kBoulder) mob.set_radius(40 + frand() * 40);
     else if (mob_id == MobId::kCactus) mob.set_radius(30 + frand() * 40);
+    mob.mass = mob.radius / 20 + 3;
     return mob;
 }
 
@@ -83,11 +86,13 @@ Entity &Simulation::alloc_player(Entity &camera) {
     player.set_max_health(100);
     player.damage = 25;
     player.immunity_ticks = SERVER_TIME(2);
+    player.add_component(kScore);
+    player.set_score(camera.experience / 2);
     return player;
 }
 
 void Simulation::tick() {
-    if (frand() < 0.00) {
+    if (frand() < 0.01) {
         Entity &mob = alloc_mob(rand() % MobId::kNumMobs);
         mob.set_x(frand() * ARENA_WIDTH);
         mob.set_y(frand() * ARENA_HEIGHT);
@@ -199,6 +204,8 @@ void Simulation::post_tick() {
         }
     }
 
+    calculate_leaderboard();
+
     //for (client of clients) client.send_update();
     for (Client *client: global_server.clients) update_client(client);
     //send_state & reset all remaining active entities
@@ -250,10 +257,53 @@ void Simulation::update_client(Client *client) {
         ent.write(&writer, create);
     }
     writer.write_entid(NULL_ENTITY);
+    //scoreboard
+    writer.write_uint32(leaderboard.length);
+    for (uint32_t i = 0; i < leaderboard.length - 1; ++i) {
+        writer.write_string(leaderboard[i].name);
+        writer.write_entid(leaderboard[i].id);
+        writer.write_float(leaderboard[i].score);
+    }
+    if (ent_exists(camera.player) && get_ent(camera.player).score <= leaderboard[leaderboard.length - 1].score) {
+        Entity &player = get_ent(camera.player);
+        writer.write_string(player.name);
+        writer.write_entid(player.id);
+        writer.write_float(player.score);
+    }
+    else {
+        writer.write_string(leaderboard[leaderboard.length - 1].name);
+        writer.write_entid(leaderboard[leaderboard.length - 1].id);
+        writer.write_float(leaderboard[leaderboard.length - 1].score);
+    }
     //set client->last_in_view
     client->last_in_view.clear();
     for (EntityId i: in_view) client->last_in_view.insert(i);
 
     std::string_view message(reinterpret_cast<char const *>(writer.packet), writer.at - writer.packet);
     client->ws->send(message, uWS::OpCode::BINARY, 0);
+}
+
+void Simulation::calculate_leaderboard() {
+    std::vector<EntityId> players;
+    for (uint32_t i = 0; i < active_entities.length; ++i) {
+        //guarantee entity exists
+        assert(ent_exists(active_entities[i]));
+        Entity &ent = get_ent(active_entities[i]);
+        if (ent.has_component(kScore)) players.push_back(active_entities[i]);
+    }
+    uint32_t num = players.size();
+    if (num > 10) num = 10;
+    leaderboard.clear();
+    for (uint32_t i = 0; i < num; ++i) {
+        float max_score = 0;
+        uint32_t max_ind = 0;
+        for (uint32_t j = 0; j < players.size(); ++j) {
+            EntityId &id = players[j];
+            float sc = get_ent(id).score;
+            if (sc > max_score) { max_score = sc; max_ind = j; }
+        }
+        leaderboard.push({get_ent(players[max_ind]).name, players[max_ind], max_score});
+        players[max_ind] = players[players.size() - 1];
+        players.pop_back();
+    }
 }

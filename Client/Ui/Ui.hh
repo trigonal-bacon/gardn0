@@ -10,6 +10,7 @@
 #include <Client/Ui/VisualUtils.hh>
 
 #include <Client/Ui/InGame/DeathScreen.hh>
+#include <Client/Ui/InGame/LeaderboardBar.hh>
 #include <Client/Ui/InGame/LevelBar.hh>
 #include <Client/Ui/InGame/Loadout.hh>
 

@@ -45,7 +45,7 @@ struct MobData MOB_DATA[MobId::kNumMobs] = {
     {"Cactus", kCommon, 40, 30, 50, 4, {{PetalId::kStinger, 0.12},{PetalId::kCactus, 0.04},{PetalId::kTricac, 0.00005}}},
     {"Ladybug", kUnusual, 40, 10, 30, 4, {{PetalId::kAzalea, 0.12},{PetalId::kWing, 0.06},{PetalId::kEAzalea, 0.002}}},
     {"Beetle", kEpic, 300, 30, 75, 50, {{PetalId::kIris, 1.00},{PetalId::kWing, 0.82},{PetalId::kTriplet, 0.02},{PetalId::kBeetleEgg, 0.005}}},
-    {"Ladybug", kLegendary, 10, 10, 100, 100, {{PetalId::kRose, 1.00},{PetalId::kWing, 1.00},{PetalId::kAzalea, 1.00},{PetalId::kEAzalea, 1.00}}},
+    {"Ladybug", kLegendary, 500, 10, 100, 100, {{PetalId::kRose, 1.00},{PetalId::kWing, 1.00},{PetalId::kAzalea, 1.00},{PetalId::kEAzalea, 1.00}}},
 };
 
 uint32_t RARITY_COLORS[kRarityId::kNumRarities] = { 0xff7eef6d, 0xffffe65d, 0xff4d52e3, 0xff861fde, 0xffde1f1f, 0xff1fdbde };//, 0xffff2b75, 0xfff70fb6};
