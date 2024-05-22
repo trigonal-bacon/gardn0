@@ -259,21 +259,23 @@ void Simulation::update_client(Client *client) {
     writer.write_entid(NULL_ENTITY);
     //scoreboard
     writer.write_uint32(leaderboard.length);
-    for (uint32_t i = 0; i < leaderboard.length - 1; ++i) {
-        writer.write_string(leaderboard[i].name);
-        writer.write_entid(leaderboard[i].id);
-        writer.write_float(leaderboard[i].score);
-    }
-    if (ent_exists(camera.player) && get_ent(camera.player).score <= leaderboard[leaderboard.length - 1].score) {
-        Entity &player = get_ent(camera.player);
-        writer.write_string(player.name);
-        writer.write_entid(player.id);
-        writer.write_float(player.score);
-    }
-    else {
-        writer.write_string(leaderboard[leaderboard.length - 1].name);
-        writer.write_entid(leaderboard[leaderboard.length - 1].id);
-        writer.write_float(leaderboard[leaderboard.length - 1].score);
+    if (leaderboard.length > 0) {
+        for (uint32_t i = 0; i < leaderboard.length - 1; ++i) {
+            writer.write_string(leaderboard[i].name);
+            writer.write_entid(leaderboard[i].id);
+            writer.write_float(leaderboard[i].score);
+        }
+        if (ent_exists(camera.player) && get_ent(camera.player).score <= leaderboard[leaderboard.length - 1].score) {
+            Entity &player = get_ent(camera.player);
+            writer.write_string(player.name);
+            writer.write_entid(player.id);
+            writer.write_float(player.score);
+        }
+        else {
+            writer.write_string(leaderboard[leaderboard.length - 1].name);
+            writer.write_entid(leaderboard[leaderboard.length - 1].id);
+            writer.write_float(leaderboard[leaderboard.length - 1].score);
+        }
     }
     //set client->last_in_view
     client->last_in_view.clear();
@@ -289,11 +291,12 @@ void Simulation::calculate_leaderboard() {
         //guarantee entity exists
         assert(ent_exists(active_entities[i]));
         Entity &ent = get_ent(active_entities[i]);
-        if (ent.has_component(kScore)) players.push_back(active_entities[i]);
+        if (ent.has_component(kFlower) && ent.has_component(kScore)) players.push_back(active_entities[i]);
     }
     uint32_t num = players.size();
     if (num > 10) num = 10;
     leaderboard.clear();
+    if (num == 0) return;
     for (uint32_t i = 0; i < num; ++i) {
         float max_score = 0;
         uint32_t max_ind = 0;

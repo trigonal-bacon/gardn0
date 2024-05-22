@@ -87,7 +87,7 @@ void tick_worker_ant_ai(Simulation *simulation, Entity &entity) {
             Entity &target = simulation->get_ent(entity.target);
             Vector diff(target.x - entity.x, target.y - entity.y);
             entity.set_angle(diff.angle());
-            entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION);
+            entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION * 0.95);
             break;
         }
         default:
@@ -118,7 +118,7 @@ void tick_soldier_ant_ai(Simulation *simulation, Entity &entity) {
             Entity &target = simulation->get_ent(entity.target);
             Vector diff(target.x - entity.x, target.y - entity.y);
             entity.set_angle(diff.angle());
-            entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION);
+            entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION * 0.95);
             if (diff.magnitude() > DETECTION_RANGE + 300) {
                 entity.ai_state = kIdle;
                 entity.ai_ticks_to_next_action = 0;
@@ -170,7 +170,7 @@ void tick_hornet_ai(Simulation *simulation, Entity &entity) {
                 entity.target = NULL_ENTITY;
                 break;
             }
-            else if (dist > 250) entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION);
+            else if (dist > 250) entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION * 0.95);
             if (entity.ai_ticks_to_next_action > SERVER_TIME(3) && dist < 500) {
                 Entity &petal = simulation->alloc_petal(PetalId::kMissile);
                 petal.set_x(entity.x);
@@ -267,7 +267,7 @@ void tick_evil_centipede_ai(Simulation *simulation, Entity &entity) {
             Entity &target = simulation->get_ent(entity.target);
             Vector diff(target.x - entity.x, target.y - entity.y);
             entity.set_angle(diff.angle());
-            entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION);
+            entity.acceleration.unit_normal(entity.angle).set_magnitude(PLAYER_ACCELERATION * 0.95);
             if (diff.magnitude() > DETECTION_RANGE + 300) {
                 entity.ai_state = kIdle;
                 entity.ai_ticks_to_next_action = 0;

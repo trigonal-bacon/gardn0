@@ -21,7 +21,7 @@ struct PetalData PETAL_DATA[PetalId::kNumPetals] = {
     {"Cactus",  kRare,      30, 2,  15, 1.0, 1, {}},
     {"Grapes",  kEpic,      2,  5,  7,  1.5, 4, {.secondary_reload = 0.5, .clump_radius = 8}},
     {"Egg",     kEpic,      50, 1,  14, 4.0, 1, {.secondary_reload = 10}},
-    {"Triplet", kEpic,      50, 1,  10, 1.0, 3, {}},
+    {"Triplet", kEpic,      5,  7,  7,  1.0, 3, {}},
     {"Heaviest",kEpic,      250,10, 16, 12., 1, {}},
     {"Azalea",  kEpic,      5, 5,   10, 3.5, 1, {.secondary_reload = 1.0, .heal = 20}},
     {"Stinger", kLegendary, 5,  30, 7,  3.5, 3, {.clump_radius = 10}},
@@ -45,7 +45,7 @@ struct MobData MOB_DATA[MobId::kNumMobs] = {
     {"Cactus", kCommon, 40, 30, 50, 4, {{PetalId::kStinger, 0.12},{PetalId::kCactus, 0.04},{PetalId::kTricac, 0.00005}}},
     {"Ladybug", kUnusual, 40, 10, 30, 4, {{PetalId::kAzalea, 0.12},{PetalId::kWing, 0.06},{PetalId::kEAzalea, 0.002}}},
     {"Beetle", kEpic, 300, 30, 75, 50, {{PetalId::kIris, 1.00},{PetalId::kWing, 0.82},{PetalId::kTriplet, 0.02},{PetalId::kBeetleEgg, 0.005}}},
-    {"Ladybug", kLegendary, 500, 10, 100, 100, {{PetalId::kRose, 1.00},{PetalId::kWing, 1.00},{PetalId::kAzalea, 1.00},{PetalId::kEAzalea, 1.00}}},
+    {"Ladybug", kLegendary, 1000, 10, 100, 100, {{PetalId::kRose, 1.00},{PetalId::kWing, 1.00},{PetalId::kAzalea, 1.00},{PetalId::kEAzalea, 1.00}}},
 };
 
 uint32_t RARITY_COLORS[kRarityId::kNumRarities] = { 0xff7eef6d, 0xffffe65d, 0xff4d52e3, 0xff861fde, 0xffde1f1f, 0xff1fdbde };//, 0xffff2b75, 0xfff70fb6};
@@ -60,7 +60,7 @@ float RARITY_SACRIFICE_XP[kRarityId::kNumRarities] = {
 };
 
 float xp_to_next_level(uint32_t curr_level) {
-    return 1 + 3 * curr_level * powf(1.06, curr_level);
+    return 1 + 2.56 * curr_level * powf(1.06, curr_level);
 }
 
 uint32_t get_level_from_xp(float xp) {
