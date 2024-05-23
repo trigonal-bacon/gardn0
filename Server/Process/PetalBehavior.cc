@@ -56,6 +56,7 @@ static void calculate_petal_passive_buffs(Simulation *simulation, Entity &player
         camera.set_loadout_count(curr_slot_count);
     }
 
+    player.poison.define(0,0);
     float max_health_adj = 100 + fclamp((lvl - 1) * 50 / 44, 0, 50);
 
     for (uint32_t i = 0; i < camera.loadout_count; ++i) {
@@ -65,6 +66,7 @@ static void calculate_petal_passive_buffs(Simulation *simulation, Entity &player
         if (slot.id == PetalId::kLeaf) inflict_heal(simulation, player, REAL_TIME(petal_data.extras.heal));
         if (slot.id == PetalId::kCactus) max_health_adj += 20;
         if (slot.id == PetalId::kTricac) max_health_adj += 40;
+        if (slot.id == PetalId::kPoisonCactus) { max_health_adj += 20; player.poison.define(REAL_TIME(10), SERVER_TIME(3)); }
         /*
         for (uint32_t j = 0; j < petal_data.count; ++j) {
         }

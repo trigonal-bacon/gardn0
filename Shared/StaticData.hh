@@ -37,6 +37,7 @@ public:
         kTriplet,
         kHeaviest,
         kEAzalea,
+        kPoisonCactus,
         kTringer,
         kTricac,
         kBeetleEgg,
@@ -63,6 +64,8 @@ public:
         kDarkLadybug,
         kMassiveBeetle,
         kMassiveLadybug,
+        kAntHole,
+        kQueenAnt,
         kNumMobs
     };
 };

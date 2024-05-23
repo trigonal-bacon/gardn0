@@ -11,7 +11,7 @@ struct PetalData PETAL_DATA[PetalId::kNumPetals] = {
     {"Twin",    kUnusual,   5,  7,  7,  1.0, 2, {}},
     {"Stinger", kUnusual,   5,  30, 7,  3.5, 1, {}},
     {"Leaf",    kUnusual,   8,  10, 10, 1.2, 1, {.heal = 1}},
-    {"Iris",    kUnusual,   5,  5,  7,  5.0, 1, {}},
+    {"Iris",    kUnusual,   5,  5,  7,  5.0, 1, {.poison_damage = 60, .poison_time = 8}},
     {"Wing",    kRare,      15, 15, 15, 1.5, 1, {}},
     {"Missile", kRare,      35, 15, 15, 2.5, 1, {.secondary_reload = 0.5}},
     {"Bubble",  kRare,      1,  1,  12, 3.5, 1, {.secondary_reload = 0.5}},
@@ -19,11 +19,12 @@ struct PetalData PETAL_DATA[PetalId::kNumPetals] = {
     {"Peas",    kRare,      5,  5,  7,  1.5, 4, {.secondary_reload = 0.5, .clump_radius = 8}},
     {"Rock",    kRare,      100,15, 12, 10., 1, {}},
     {"Cactus",  kRare,      30, 2,  15, 1.0, 1, {}},
-    {"Grapes",  kEpic,      2,  5,  7,  1.5, 4, {.secondary_reload = 0.5, .clump_radius = 8}},
+    {"Grapes",  kEpic,      2,  5,  7,  1.5, 4, {.secondary_reload = 0.5, .clump_radius = 8, .poison_damage = 10, .poison_time = 1.0}},
     {"Egg",     kEpic,      50, 1,  14, 4.0, 1, {.secondary_reload = 10}},
     {"Triplet", kEpic,      5,  7,  7,  1.0, 3, {}},
     {"Heaviest",kEpic,      250,10, 16, 12., 1, {}},
     {"Azalea",  kEpic,      5, 5,   10, 3.5, 1, {.secondary_reload = 1.0, .heal = 20}},
+    {"Cactus",  kEpic,      30, 2,  15, 1.0, 1, {.poison_damage = 10, .poison_time = 1.0}},
     {"Stinger", kLegendary, 5,  30, 7,  3.5, 3, {.clump_radius = 10}},
     {"Cactus",  kLegendary, 30, 2,  15, 1.0, 3, {.clump_radius = 10}},
     {"Egg",     kLegendary, 50, 1,  15, 4.0, 1, {.secondary_reload = 1.0}},
@@ -42,10 +43,12 @@ struct MobData MOB_DATA[MobId::kNumMobs] = {
     {"Spider", kUnusual, 25, 20, 15, 7, {{PetalId::kIris, 0.48},{PetalId::kStinger, 0.24}}},
     {"Rock", kCommon, 25, 10, 25, 2, {{PetalId::kFast, 0.24},{PetalId::kHeavy, 0.36},{PetalId::kRock, 0.005}}},
     {"Boulder", kUnusual, 60, 10, 45, 5, {{PetalId::kHeavy, 1.00},{PetalId::kRock, 0.04},{PetalId::kHeaviest, 0.0006}}},
-    {"Cactus", kCommon, 40, 30, 50, 4, {{PetalId::kStinger, 0.12},{PetalId::kCactus, 0.04},{PetalId::kTricac, 0.00005}}},
+    {"Cactus", kCommon, 40, 30, 50, 4, {{PetalId::kStinger, 0.12},{PetalId::kCactus, 0.04},{PetalId::kPoisonCactus, 0.001},{PetalId::kTricac, 0.00005}}},
     {"Ladybug", kUnusual, 40, 10, 30, 4, {{PetalId::kAzalea, 0.12},{PetalId::kWing, 0.06},{PetalId::kEAzalea, 0.002}}},
     {"Beetle", kEpic, 300, 30, 75, 50, {{PetalId::kIris, 1.00},{PetalId::kWing, 0.82},{PetalId::kTriplet, 0.02},{PetalId::kBeetleEgg, 0.005}}},
     {"Ladybug", kLegendary, 1000, 10, 100, 100, {{PetalId::kRose, 1.00},{PetalId::kWing, 1.00},{PetalId::kAzalea, 1.00},{PetalId::kEAzalea, 1.00}}},
+    {"Ant Hole", kRare, 500, 10, 45, 30, {{PetalId::kIris, 1.00},{PetalId::kTriplet, 0.01},{PetalId::kEgg, 0.02}}},
+    {"Queen Ant", kRare, 250, 10, 45, 25, {{PetalId::kIris, 1.00},{PetalId::kWing, 0.32},{PetalId::kTriplet, 0.01},{PetalId::kEgg, 0.02},{PetalId::kTringer, 0.005}}}
 };
 
 uint32_t RARITY_COLORS[kRarityId::kNumRarities] = { 0xff7eef6d, 0xffffe65d, 0xff4d52e3, 0xff861fde, 0xffde1f1f, 0xff1fdbde };//, 0xffff2b75, 0xfff70fb6};

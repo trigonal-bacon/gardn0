@@ -335,17 +335,17 @@ void tick_mob_ai(Simulation *simulation, Entity &entity) {
             entity.target = NULL_ENTITY;
             return;
         }
-        /*
         else if (entity.ai_state == kReturning) {
-            entity.acceleration = delta.set_magnitude(PLAYER_ACCELERATION / 2);
+            entity.acceleration = delta.set_magnitude(PLAYER_ACCELERATION);
             entity.set_angle(delta.angle());
             entity.target = NULL_ENTITY;
-            if (++entity.ai_ticks_to_next_action > SERVER_TIME(0.75)) {
+            if (++entity.ai_ticks_to_next_action > SERVER_TIME(1.0)) {
                 entity.ai_state = kIdle;
                 entity.ai_ticks_to_next_action = SERVER_TIME(0.5) + frand() * SERVER_TIME(2);
             }
+            else return;
         }
-        */
+        if (!simulation->ent_alive(entity.target) && simulation->ent_alive(parent.target)) entity.target = parent.target;
     }
     entity.ai_ticks_to_next_action++;// -= entity.ai_ticks_to_next_action > 0;
     switch(entity.mob_id) {
@@ -361,6 +361,7 @@ void tick_mob_ai(Simulation *simulation, Entity &entity) {
         case MobId::kBeetle:
         case MobId::kSoldierAnt:
         case MobId::kMassiveBeetle:
+        case MobId::kQueenAnt:
             tick_soldier_ant_ai(simulation, entity);
             break;
         case MobId::kHornet:
@@ -381,6 +382,7 @@ void tick_mob_ai(Simulation *simulation, Entity &entity) {
         case MobId::kRock:
         case MobId::kBoulder:
         case MobId::kCactus:
+        case MobId::kAntHole:
             break;
         default:
             assert(!"invalid mobID");

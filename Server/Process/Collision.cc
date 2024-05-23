@@ -13,7 +13,8 @@ static bool should_interact(Entity &ent1, Entity &ent2) {
     //if (ent1.has_component(kPetal) || ent2.has_component(kPetal)) return false;
     if (ent1.pending_delete || ent2.pending_delete) return false;
     if (ent1.team != ent2.team) return true;
-    if (ent1.has_component(kPetal) || ent2.has_component(kPetal)) return false;
+    //if (ent1.has_component(kPetal) || ent2.has_component(kPetal)) return false;
+    if (ent1.no_friendly_collision || ent2.no_friendly_collision) return false;
     return true;
 }
 

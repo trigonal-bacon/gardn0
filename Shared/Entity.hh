@@ -97,6 +97,7 @@ enum Fields {
 _SINGLE(pending_delete, uint8_t, =0) \
 _SINGLE(input, uint8_t, =0) \
 _SINGLE(detached, uint8_t, =0) \
+_SINGLE(no_friendly_collision, uint8_t, =0) \
 _SINGLE(friction, float, =0) \
 _SINGLE(mass, float, =1) \
 _SINGLE(velocity, Vector, .set(0,0)) \

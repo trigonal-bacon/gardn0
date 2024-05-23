@@ -250,7 +250,7 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float _animation_value, floa
                 uint32_t ct = 3 + gen.next() * 4;
                 for (uint32_t i = 0; i < ct; ++i) {
                     ctx.begin_path();
-                    ctx.arc((2*gen.next()-1)*radius,(2*gen.next()-1)*radius,4+gen.next()*5);
+                    ctx.arc((2*gen.next()-1)*30,(2*gen.next()-1)*30,4+gen.next()*5);
                     ctx.fill();
                 }
             }
@@ -508,7 +508,7 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float _animation_value, floa
                 uint32_t ct = 3 + gen.next() * 4;
                 for (uint32_t i = 0; i < ct; ++i) {
                     ctx.begin_path();
-                    ctx.arc((2*gen.next()-1)*radius,(2*gen.next()-1)*radius,4+gen.next()*5);
+                    ctx.arc((2*gen.next()-1)*30,(2*gen.next()-1)*30,4+gen.next()*5);
                     ctx.fill();
                 }
             }
@@ -541,6 +541,69 @@ void draw_static_mob(uint8_t mob_id, Renderer &ctx, float _animation_value, floa
             ctx.qcurve_to(-24.022449493408203,15.673511505126953,-14.96302318572998,21.871395111083984);
             ctx.qcurve_to(-5.903592586517334,28.06928253173828,4.884955406188965,26.045866012573242);
             ctx.qcurve_to(15.673511505126953,24.022449493408203,21.871395111083984,14.963025093078613);
+            ctx.fill();
+            break;
+        case MobId::kAntHole:
+            ctx.begin_path();
+            ctx.arc(0,0,45);
+            ctx.set_fill(0xffb58500);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(0,0,30);
+            ctx.set_fill(0xff946d00);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(0,0,15);
+            ctx.set_fill(0xff6b4f00);
+            ctx.fill();
+            break;
+        case MobId::kQueenAnt:
+            ctx.begin_path();
+            ctx.arc(-25,0,33.5);
+            ctx.set_fill(0xff454545);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(-25,0,26.5);
+            ctx.set_fill(0xff555555);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(0,0,28.5);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(0,0,21.5);
+            ctx.fill();
+            {
+                RenderContext contexgt(&ctx);
+                ctx.rotate(animation_value * 0.1);
+                ctx.begin_path();
+                ctx.ellipse(-14,-16,30,14,M_PI/10);
+                ctx.set_fill(0x7feeeeee);
+                ctx.fill();
+            }
+            {          
+                RenderContext contexgt(&ctx);
+                ctx.rotate(-animation_value * 0.1);
+                ctx.begin_path();
+                ctx.ellipse(-14,16,30,14,-M_PI/10);
+                ctx.set_fill(0x7feeeeee);
+                ctx.fill();
+            }
+            ctx.set_stroke(0xff292929);
+            ctx.set_line_width(7);
+            ctx.round_line_cap();
+            ctx.begin_path();
+            ctx.move_to(25,-10.5);
+            ctx.qcurve_to(41.5,-15,58,-7.5);
+            ctx.move_to(25,10.5);
+            ctx.qcurve_to(41.5,15,58,7.5);
+            ctx.stroke();
+            ctx.begin_path();
+            ctx.arc(25,0,24.5);
+            ctx.set_fill(0xff454545);
+            ctx.fill();
+            ctx.begin_path();
+            ctx.arc(25,0,17.5);
+            ctx.set_fill(0xff555555);
             ctx.fill();
             break;
         default:

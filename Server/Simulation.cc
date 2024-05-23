@@ -12,6 +12,9 @@
 Entity &_alloc_mob(Simulation *sim, uint8_t mob_id) {
     Entity &mob = sim->alloc_ent();
     mob.add_component(kPhysics);
+    //default pos
+    mob.set_x(frand() * ARENA_WIDTH);
+    mob.set_y(frand() * ARENA_HEIGHT);
     mob.set_angle(frand() * 2 * M_PI);
     mob.set_radius(MOB_DATA[mob_id].radius);
     mob.friction = DEFAULT_FRICTION;
@@ -34,21 +37,44 @@ Entity &_alloc_mob(Simulation *sim, uint8_t mob_id) {
 }
 
 Entity &Simulation::alloc_mob(uint8_t mob_id) {
-    if (mob_id != MobId::kCentipede && mob_id != MobId::kEvilCentipede) return _alloc_mob(this, mob_id);
-    Entity *head = &_alloc_mob(this, mob_id);
-    head->add_component(kSegmented);
-    Entity &ret = *head;
-    ret.set_is_head(1);
-    for (uint32_t i = 0; i < 9; ++i) {
-        Entity *segment = &_alloc_mob(this, mob_id);
-        segment->add_component(kSegmented);
-        segment->head_node = head->id;
-        segment->set_angle(head->angle + frand() * 0.1 - 0.05);
-        segment->set_x(head->x - (head->radius + segment->radius) * cosf(segment->angle));
-        segment->set_y(head->y - (head->radius + segment->radius) * sinf(segment->angle));
-        head = segment;
+    if (mob_id == MobId::kCentipede || mob_id == MobId::kEvilCentipede) {
+        Entity *head = &_alloc_mob(this, mob_id);
+        head->add_component(kSegmented);
+        Entity &ret = *head;
+        ret.set_is_head(1);
+        for (uint32_t i = 0; i < 9; ++i) {
+            Entity *segment = &_alloc_mob(this, mob_id);
+            segment->add_component(kSegmented);
+            segment->head_node = head->id;
+            segment->set_angle(head->angle + frand() * 0.1 - 0.05);
+            segment->set_x(head->x - (head->radius + segment->radius) * cosf(segment->angle));
+            segment->set_y(head->y - (head->radius + segment->radius) * sinf(segment->angle));
+            head = segment;
+        }
+        return ret;
     }
-    return ret;
+    else if (mob_id == MobId::kAntHole) {
+        Entity &hole = _alloc_mob(this, mob_id);
+        hole.no_friendly_collision = 1;
+        for (uint32_t i = 0; i < 3; ++i) {
+            Entity &spawn = _alloc_mob(this, MobId::kBabyAnt);
+            float angle = frand() * 2 * M_PI;
+            float dist = sqrtf(frand()) * 100;
+            spawn.set_x(hole.x + cosf(angle) * dist);
+            spawn.set_y(hole.y + sinf(angle) * dist);
+            spawn.set_parent(hole.id);
+        }
+        for (uint32_t i = 0; i < 2; ++i) {
+            Entity &spawn = _alloc_mob(this, MobId::kWorkerAnt);
+            float angle = frand() * 2 * M_PI;
+            float dist = sqrtf(frand()) * 100;
+            spawn.set_x(hole.x + cosf(angle) * dist);
+            spawn.set_y(hole.y + sinf(angle) * dist);
+            spawn.set_parent(hole.id);
+        }
+        return hole;
+    }
+    else return _alloc_mob(this, mob_id);
 }
 
 Entity &Simulation::alloc_petal(uint8_t petal_id) {
@@ -66,6 +92,7 @@ Entity &Simulation::alloc_petal(uint8_t petal_id) {
     petal.damage = PETAL_DATA[petal_id].damage;
     petal.effect_delay = 0;
     petal.poison.define(REAL_TIME(PETAL_DATA[petal_id].extras.poison_damage / PETAL_DATA[petal_id].extras.poison_time), SERVER_TIME(PETAL_DATA[petal_id].extras.poison_time));
+    petal.no_friendly_collision = 1;
     return petal;
 }
 
@@ -88,14 +115,13 @@ Entity &Simulation::alloc_player(Entity &camera) {
     player.immunity_ticks = SERVER_TIME(2);
     player.add_component(kScore);
     player.set_score(camera.experience / 2);
+    player.no_friendly_collision = 1;
     return player;
 }
 
 void Simulation::tick() {
     if (frand() < 0.01) {
-        Entity &mob = alloc_mob(rand() % MobId::kNumMobs);
-        mob.set_x(frand() * ARENA_WIDTH);
-        mob.set_y(frand() * ARENA_HEIGHT);
+        Entity &mob = alloc_mob(MobId::kAntHole);
     }
     pre_tick();
     for (uint32_t i = 0; i < active_entities.length; ++i) {

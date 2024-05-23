@@ -55,6 +55,7 @@ public:
     void arc(float, float, float);
     void reverse_arc(float, float, float);
     void ellipse(float, float, float, float);
+    void ellipse(float, float, float, float, float);
     void rect(float, float, float, float);
     void round_rect(float, float, float, float, float);
     void fill_rect(float, float, float, float);

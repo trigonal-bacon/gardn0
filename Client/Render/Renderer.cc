@@ -228,10 +228,14 @@ void Renderer::reverse_arc(float x, float y, float r) {
     partial_arc(x, y, r, 0, 2 * M_PI, 1);
 }
 
-void Renderer::ellipse(float x, float y, float r1, float r2) {
+void Renderer::ellipse(float x, float y, float r1, float r2, float a) {
 EM_ASM({
-    Module.ctxs[$0].ellipse($1, $2, $3, $4, 0, 2 * Math.PI, 0);
-}, id, x, y, r1, r2);
+    Module.ctxs[$0].ellipse($1, $2, $3, $4, $5, 2 * Math.PI, 0);
+}, id, x, y, r1, r2, a);
+}
+
+void Renderer::ellipse(float x, float y, float r1, float r2) {
+    ellipse(x, y, r1, r2, 0);
 }
 
 void Renderer::fill_rect(float x, float y, float w, float h) {
