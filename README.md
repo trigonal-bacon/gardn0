@@ -1,4 +1,4 @@
-# gardn
+# gardn0
 
 This is a scrapped version of the gardn project, inspired by previous work on another project. It contains a templated entity generator, partial ECS, and a custom UI rendering library. All code is written in vanilla C++ with no frameworks or external engines.
 
