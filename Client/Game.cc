@@ -27,7 +27,7 @@ Game::Game() {
         ui::SetRenderCondition(
             [&](){ return !alive() && !in_game; },
             new ui::VContainer{
-                new ui::StaticLabel{{"Gardn.funny", 60}},
+                new ui::StaticLabel{{"Game name here", 60}},
                 new ui::StaticSpace(0,40),
                 ui::SetRenderCondition(
                     [&](){ return !simulation_ready; },

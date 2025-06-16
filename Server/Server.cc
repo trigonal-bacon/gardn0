@@ -78,7 +78,7 @@ void Server::run() {
                     camera.set_loadout_count(slots);
                     for (uint32_t i = 0; i < slots; ++i) {
                         camera.loadout[i].reset();
-                        camera.loadout[i].id = camera.loadout_ids[i] ? camera.loadout_ids[i] : PetalId::kBasic;
+                        camera.loadout[i].id = camera.loadout_ids[i] ? camera.loadout_ids[i] : PetalId::kBeetleEgg;
                     }
                     for (uint32_t i = slots + MAX_SLOT_COUNT; i < 2 * MAX_SLOT_COUNT; ++i) camera.set_loadout_ids(i, PetalId::kNone);
                     break;
